@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "48193945037",
+    "project_id": "stableswapapp",
+    "storage_bucket": "stableswapapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:48193945037:android:050a0c2a94befba0dd9884",
+        "android_client_info": {
+          "package_name": "live.stableswap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnoC-8_AFKEW_nGUyg4SYhXvLP4fgET6I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

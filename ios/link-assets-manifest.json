@@ -1,0 +1,189 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assests/fonts/Lobster-Regular.ttf",
+      "sha1": "120c751cd7a77174037c2409ab883ef7efc5edbb"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-Black.ttf",
+      "sha1": "96d03479269d1ba7a3e38f4b64ff87ead267c998"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-BlackItalic.ttf",
+      "sha1": "6e84efcb6bf01c47102d6e9f0dbe5958e74c9f20"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-Bold.ttf",
+      "sha1": "3a54407a2b26ff4718708a4726b10cb070d16534"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-BoldItalic.ttf",
+      "sha1": "6acf078ad5e1b77e6d68b8ff0cde39d81b9f057c"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-ExtraBold.ttf",
+      "sha1": "4b5c27dcf59df165606efa247190c0bfa3c02ff0"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-ExtraBoldItalic.ttf",
+      "sha1": "28423e53b60316c09f468055ca8c1d27c06ab45b"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-ExtraLight.ttf",
+      "sha1": "fe3c849af6231af6c5c43d1045f2011bf683f317"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-ExtraLightItalic.ttf",
+      "sha1": "40d3231d668844dab24536fa0c380bdc2311a992"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-Italic.ttf",
+      "sha1": "798c701450f6bc08217f73c1ac569100cddc2947"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-Light.ttf",
+      "sha1": "83879cec4c934d446eca63aa5cfedcebfd60d610"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-LightItalic.ttf",
+      "sha1": "659632ad8a33d96e6a00319d7b0c020e9cc6cc5b"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-Medium.ttf",
+      "sha1": "65a98832079c4d2c67f3acc4f4ce2de630fe6cb0"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-MediumItalic.ttf",
+      "sha1": "ceadac9926836d5fc0ee14f94567f0ea25979fa2"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-Regular.ttf",
+      "sha1": "d25b35242deb1c6ff888b8162ca2aacc356d3899"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-SemiBold.ttf",
+      "sha1": "f829de4c176fb2ccf5e33360920f48de6794434e"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-SemiBoldItalic.ttf",
+      "sha1": "3c2759411b32ad6779aba08e4c09ed1b3c0bc4d4"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-Thin.ttf",
+      "sha1": "1d00ff2f5bc9331aa6e75b5a82dd698976615dc4"
+    },
+    {
+      "path": "src/assests/fonts/Montserrat-ThinItalic.ttf",
+      "sha1": "ae19fb168e043e6408692c4bc50dd0aab76fdc22"
+    },
+    {
+      "path": "src/assests/fonts/NotoSerif-Black.ttf",
+      "sha1": "e87b682a1e3b45163d119f2d82e66767363c5fe6"
+    },
+    {
+      "path": "src/assests/fonts/NotoSerif-Bold.ttf",
+      "sha1": "8e3a28eb58d8ed783d3d4186871708a88c7837f2"
+    },
+    {
+      "path": "src/assests/fonts/NotoSerif-SemiBold.ttf",
+      "sha1": "994591ab8db24de5d492fd8e1aa1b423f030f550"
+    },
+    {
+      "path": "src/assests/fonts/NotoSerifBalinese-Regular.ttf",
+      "sha1": "eab3656ba9d44f4f1792465c54cb3297732ee743"
+    },
+    {
+      "path": "src/assests/fonts/Orbitron-Black.ttf",
+      "sha1": "d9ae5af36d6cc21c1b2b32c81aba7662275b5a7b"
+    },
+    {
+      "path": "src/assests/fonts/Orbitron-Bold.ttf",
+      "sha1": "3926215281d9ddeed380af0454481228b868062c"
+    },
+    {
+      "path": "src/assests/fonts/Orbitron-Medium.ttf",
+      "sha1": "171d09406c90d780c384e8f2d2b9943d4428929c"
+    },
+    {
+      "path": "src/assests/fonts/Orbitron-Regular.ttf",
+      "sha1": "9b3fc913ee57ed9e9b560c69da15c051314f2a5b"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-Black.ttf",
+      "sha1": "645e04c53c6b5b35bce654a811ebce16af8aa721"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-BlackItalic.ttf",
+      "sha1": "be4ef2aac7775a4b0179c0ecfce6cea8f7783f63"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-Bold.ttf",
+      "sha1": "875cf0cecd647bcf22e79d633d868c1b1ec98dfa"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-BoldItalic.ttf",
+      "sha1": "6de8952ca08d27ee77f57347d2cef4b4e26aa78f"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-ExtraBold.ttf",
+      "sha1": "4b5c0750f073abd576413a0898d3b95adaf199c8"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-ExtraBoldItalic.ttf",
+      "sha1": "94d3ee3acdbd00e37a715a25f2b5237666b5b8a3"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-ExtraLight.ttf",
+      "sha1": "85af6582a7e6155917c605f9d3fed68c02b23b06"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-ExtraLightItalic.ttf",
+      "sha1": "6fa0418f91032680d2d8fe4843009f2c80faa61d"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-Italic.ttf",
+      "sha1": "e2bfcd56016c3c915221ef1c5fc1a17b0776eb91"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-Light.ttf",
+      "sha1": "e247a92158e112f8bf7b638c8d95381d66b00dbb"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-LightItalic.ttf",
+      "sha1": "f76102b361e705751a83b7b22fe954daf1f27dd4"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-Medium.ttf",
+      "sha1": "283f21b44efbdbf276ba802be2d949a36bbc4233"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-MediumItalic.ttf",
+      "sha1": "b592c62fdf88c40cfd0f031bba6423b1d4430472"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-Regular.ttf",
+      "sha1": "fdd3002e7d814ee47c1c1b8487c72c6bbb3a2d00"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-SemiBold.ttf",
+      "sha1": "8a4ace9392d06bcb7f8ea2f5169b07e4c383a90d"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-SemiBoldItalic.ttf",
+      "sha1": "0c8bed0a5942b2388d36b11c115685d9f01700b0"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-Thin.ttf",
+      "sha1": "09ba4dcd5509c8085bf88c665dcc51cbdfced27b"
+    },
+    {
+      "path": "src/assests/fonts/Poppins-ThinItalic.ttf",
+      "sha1": "fb8fccca21550e71135f92bbaf8a2e8a12c90465"
+    },
+    {
+      "path": "src/assests/fonts/YoungSerif-Regular.ttf",
+      "sha1": "42abd3af5eba4ecdc77ea1ff885ce4a4e941f1ae"
+    }
+  ]
+}
