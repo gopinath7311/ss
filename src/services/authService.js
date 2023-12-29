@@ -45,7 +45,8 @@ export async function updtoken() {
   } catch (error) {}
 }
 
-export async function loginvalidate(user) {zz
+export async function loginvalidate(user) {
+  zz;
   const logobj = helpr.encryptobj(user);
   const {data: jwt} = await http.post(apiEndpoint + '/login', {
     enc: logobj,
@@ -71,6 +72,7 @@ export async function getJwt() {
 export async function getCurrentUser() {
   try {
     const jwt = await AsyncStorage.getItem(tokenKey);
+
     const codee = helpr.decrypt(jwt);
 
     if (codee) {
@@ -93,7 +95,7 @@ export async function logout(props) {
 
     setTimeout(() => {
       //Actions.login();
-      props.navigation.navigate("login")
+      props?.navigation?.navigate('login');
     }, 500);
 
     return ret;
@@ -103,36 +105,34 @@ export async function logout(props) {
 }
 
 export async function changepassword(obj) {
-  console.log(obj,"obj")
+  console.log(obj, 'obj');
   const encobj = helpr.encryptobj(obj);
-  console.log(encobj,"encobj")
+  console.log(encobj, 'encobj');
   const {data} = await http.post(apiEndpoint + '/change_password', {
     enc: encobj,
   });
-console.log(data,"data")
+  console.log(data, 'data');
   try {
     const code = helpr.decryptobj(data);
-   console.log(code,"code")
+    console.log(code, 'code');
 
-    
     // const codee = helpr.decryptobj(jwt);
     // return jwtDecode(codee.success);
   } catch (error) {}
 }
 
 export async function raiseticket(obj) {
-  console.log(obj,"obj")
+  console.log(obj, 'obj');
   const encobj = helpr.encryptobj(obj);
-  console.log(encobj,"encobj")
-  
+  console.log(encobj, 'encobj');
+
   try {
     const {data} = await http.post(apiEndpoint + '/raise_ticket', {
       enc: encobj,
     });
     const code = helpr.decryptobj(data);
-   console.log(code,"code")
+    console.log(code, 'code');
 
-    
     // const codee = helpr.decryptobj(jwt);
     // return jwtDecode(codee.success);
   } catch (error) {}
@@ -146,5 +146,5 @@ export default {
   getCurrentUser,
   logout,
   changepassword,
-  raiseticket
+  raiseticket,
 };

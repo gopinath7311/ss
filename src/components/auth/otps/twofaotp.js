@@ -9,7 +9,7 @@ import {
   Image,
   SafeAreaView,
 } from 'react-native';
-
+import { connect } from 'react-redux';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 import {
   widthPercentageToDP as wp,
@@ -99,11 +99,11 @@ class Twofaotp extends Component {
     } else {
       try {
         const obj = {
-          user_email: this.props?.regdata?.user_email,
+          user_email: 'gopinath7311@gmail.com',
           code2fa: code,
         };
-        const dat = await authService.validate2FA(obj);
-        // const dat = await backEndCallObj('/user/loginverify', obj);
+        //const dat = await authService.validate2FA(obj);
+         const dat = await backEndCallObj('/user/loginverify', obj);
         if (dat) {
           this.loadingButton.showLoading(false);
           await AsyncStorage.setItem('token', dat.jwt);
@@ -128,6 +128,8 @@ class Twofaotp extends Component {
   };
 
   render() {
+   // console.log(this.props?.route?.params?.regdata,'pppp')
+   //console.log(this.props.getprofil)
     return (
       <SafeAreaView style={{flex: 1}}>
         <ImageBackground
@@ -234,8 +236,13 @@ class Twofaotp extends Component {
   }
 }
 
-export default Twofaotp;
 
+const mapStateToProps = state => {
+  return {
+    getprofil: state.getprofil,
+  };
+};
+export default connect(mapStateToProps)(Twofaotp);
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,

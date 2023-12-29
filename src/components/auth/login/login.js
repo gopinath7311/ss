@@ -37,7 +37,7 @@ const {width, height} = Dimensions.get('window');
 
 const schema = Joi.object().keys({
   email: Joi.string()
-    .email()
+    
     .error(() => {
       return {
         message: 'Email must be valid email',
@@ -78,6 +78,7 @@ export default class Login extends Component {
   componentDidMount = async () => {
     this.checkPermission();
     DeviceInfo.getUniqueId().then(async uniqueId => {
+     
       await this.setState({deviceid: uniqueId});
     });
     const {navigation} = this.props;
@@ -94,6 +95,7 @@ export default class Login extends Component {
     });
   };
   checkPermission = async () => {
+
     const enabled = await messaging().hasPermission();
 
     if (Platform.OS === 'ios') {
@@ -103,7 +105,7 @@ export default class Login extends Component {
         this.requestPermission();
       }
     } else {
-      if (enabled) {
+      if (!enabled) {     
         this.getFcmToken();
       } else {
         this.requestPermission();
@@ -112,7 +114,9 @@ export default class Login extends Component {
   };
 
   getFcmToken = async () => {
+   
     const fcmToken = await messaging().getToken();
+    
     if (fcmToken) {
       await this.setState({fcmtoken: fcmToken});
     } else {
@@ -199,7 +203,7 @@ export default class Login extends Component {
         };
 
         const dat = await backEndCallObj('/user/login', obj);
-       
+  console.log(dat,"dat")
         if (dat.type === 'OTP') {
           this.loadingButton.showLoading(false);
           this.props.navigation.navigate('registerotp', {regdata: obj});

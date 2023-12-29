@@ -88,12 +88,12 @@ const schema = Joi.object().keys({
     .required()
     .trim(true),
   amount: Joi.number()
-    // .min(10)
-    // .max(1000)
+    .min(25)
+    .max(1000)
     .required()
     .error(() => {
       return {
-        message: 'Please Enter Valid Amount',
+        message: 'Minimum Amount is 25',
       };
     }),
 });
@@ -124,18 +124,12 @@ class InternalTransfer extends Component {
     code: '',
     tfacode: '',
     modalVisible: false,
+    accepted_coins: [],
+    funds:''
   };
 
   async componentDidMount() {
-    const gettax = this?.props?.gettaxes;
-    const coins = this?.props?.gettaxes?.coins;
-    var tickers = coins?.map(k => k?.ticker);
-    var ticarr = [];
-    tickers?.forEach(e => {
-      var fr = {label: e, value: e};
-      ticarr?.push(fr);
-    });
-    await this.setState({cointypes: ticarr});
+    this.getAcceptedCoins();
   }
 
   async _finishCountt() {
@@ -209,16 +203,6 @@ class InternalTransfer extends Component {
       const reppo = na.replace(' ', '');
       await this.setState({amount: reppo});
     }
-  };
-
-  coinsel = async item => {
-    await this.setState({
-      coinname: item?.value,
-    });
-    var mappp = this?.props?.gettaxes?.coins?.filter(
-      k => k?.ticker === this?.state?.coinname,
-    )[0];
-    await this.setState({selectcoin: mappp});
   };
 
   _onPresslogin = async () => {
@@ -346,21 +330,21 @@ class InternalTransfer extends Component {
               : tfacode,
         };
         console.log(obj, 'cnobjm');
-        const res = await backEndCallObj('/payments/internal_transfer', obj);
-        if (res?.success) {
-          showToast('success', res?.success);
-          await allactions();
-          setTimeout(async () => {
-            await this.setState({
-              isModalVisible: false,
-              amount: '',
-              raddress: '',
-              code: '',
-              tfacode: '',
-            });
-            this.loadingButtonn.showLoading(false);
-          }, 2000);
-        }
+        //const res = await backEndCallObj('/payments/internal_transfer', obj);
+        // if (res?.success) {
+        //   showToast('success', res?.success);
+        //   await allactions();
+        //   setTimeout(async () => {
+        //     await this.setState({
+        //       isModalVisible: false,
+        //       amount: '',
+        //       raddress: '',
+        //       code: '',
+        //       tfacode: '',
+        //     });
+        //     this.loadingButtonn.showLoading(false);
+        //   }, 2000);
+        // }
       } catch (ex) {
         if (ex.response && ex.response.status === 400) {
           this.loadingButtonn.showLoading(false);
@@ -377,13 +361,9 @@ class InternalTransfer extends Component {
       }
     }
   };
-  selectCoinModal =  () => {
-     this.setState({
-      modalVisible: !this.state.modalVisible,
-    });
-  };
-  selectCoin =  name => {
-     this.setState({
+
+  selectCoin = name => {
+    this.setState({
       coinname: name,
       modalVisible: !this.state.modalVisible,
     });
@@ -391,16 +371,31 @@ class InternalTransfer extends Component {
   setOpen = () => {
     this.setState({open: !this.state.open});
   };
-  setItems = e => {
-    console.log(e, 'setItems');
-    this.setState({singleValue: e});
+  onSelect = data => {
+    this.setState({coinname: data.label, open: false});
   };
- onSelect=(data)=>{
-  this.setState({coinname:data.label,open:false})
- }
- setCoin=(item)=>{
-console.log(item,"item")
- }
+
+  getAcceptedCoins = () => {
+    const coins = this?.props?.gettaxes?.coins;
+
+    var tickers = coins?.map(k => k?.ticker);
+    var ticarr = [];
+    tickers?.forEach(e => {
+      var fr = {
+        label: e,
+        value: e,
+        icon: () => (
+          <Image
+            source={e == 'USDT' ? usdt : e == 'USDC' ? usdc : busd}
+            style={styles.image}
+          />
+        ),
+      };
+
+      ticarr.push(fr);
+      this.setState({accepted_coins: ticarr});
+    });
+  };
   render() {
     const clogo =
       this.state.coinname && this.state.coinname.length > 0
@@ -419,12 +414,11 @@ console.log(item,"item")
         end={{x: 0, y: 1}}
         colors={['#133225', '#0d281c', '#07160f', 'black']}
         style={{flex: 1}}>
-       
-          <View style={styles.toastCont}>
-            <Toast />
-          </View>
-          <View style={{marginHorizontal: wp('5%'), marginVertical: hp('4%')}}>
-            <View>
+        <View style={styles.toastCont}>
+          <Toast />
+        </View>
+        <View style={{marginHorizontal: wp('5%'), marginVertical: hp('4%')}}>
+          <View>
             <Text
               style={{
                 fontFamily: 'Poppins-SemiBold',
@@ -433,161 +427,162 @@ console.log(item,"item")
               }}>
               Select Coin
             </Text>
-            <View style={styles.maindropDownCon}>
-<Image source={clogo} style={[styles.image,{marginLeft:3}]}/>
+
             <DropDownPicker
-              items={local_data}
+              items={this.state.accepted_coins}
               //placeholder={this.state.coinname?this.state.coinname:"Please select coin"}
               dropDownContainerStyle={styles.dropDownCont}
-              style={styles.dropdown}
-              placeholderStyle={{color: '#a9efdb',}}
+              style={styles.maindropDownCon}
+              placeholderStyle={{color: '#a9efdb'}}
               value={this.state.coinname}
               setOpen={this.setOpen}
-              activeLabelStyle={{color: 'red'}}
-              selectedItemLabelStyle={{color: 'red'}}
-             placeholder={this.state.coinname?this.state.coinname:"select"}
+              placeholder={this.state.coinname ? this.state.coinname : 'select'}
               //setValue={value=>console.log(value.value)}
               open={this.state.open}
-              listItemLabelStyle={{color:"#fff",}}
-              TickIconComponent={()=>(<Icon name='check' type='Entypo' color={'#fff'}/>)}
+              listItemLabelStyle={{color: '#fff'}}
+              TickIconComponent={() => (
+                <Icon name="check" type="Entypo" color={'#fff'} />
+              )}
               showTickIcon={true}
-              tickIconStyle={{width:20,height:20,color:"#fff"}}
-              onSelectItem={data=>this.onSelect(data)}
-             selectedItemContainerStyle={{backgroundColor:"green"}}
-           labelStyle={{color:"#a9efdb"}}
-             multiple={false}
-             ArrowDownIconComponent={()=>(<Icon name='arrow-drop-down' type='FontAwesome' color={'#fff'}/>)}
-             ArrowUpIconComponent={()=>(<Icon name='arrow-drop-up' type='FontAwesome' color={'#fff'}/>)}
-          
-             />
-
-            </View>
-            
-            </View>
-           
-           
-
-            <Text
-              style={{
-                fontFamily: 'Poppins-SemiBold',
-                color: '#bacbc7',
-                marginVertical: hp('1%'),
-                fontSize: 13.5,
-              }}>
-              Username / Email
-            </Text>
-            {/* ${this.state.coinname} */}
-            <View style={styles.sidecont}>
-              <TextInput
-                style={styles.inputStyle}
-                placeholder={`Receiver Username / Email`}
-                maxLength={25}
-                placeholderTextColor={'#50826e'}
-                returnKeyType="done"
-                onChangeText={raddress => this.wsraddress(raddress)}
-                value={this.state.raddress}
-              />
-              <View style={styles.sideconts}>
-                <Image
-                  style={{
-                    width: 20,
-                    height: 20,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                  source={clogo}
-                  resizeMode="contain"
+              tickIconStyle={{width: 20, height: 20, color: '#fff'}}
+              onSelectItem={data => this.onSelect(data)}
+              selectedItemContainerStyle={{backgroundColor: '#00271a'}}
+              labelStyle={{color: '#a9efdb'}}
+              multiple={false}
+              ArrowDownIconComponent={() => (
+                <Icon
+                  name="arrow-drop-down"
+                  type="FontAwesome"
+                  color={'#fff'}
                 />
-              </View>
-            </View>
+              )}
+              ArrowUpIconComponent={() => (
+                <Icon name="arrow-drop-up" type="FontAwesome" color={'#fff'} />
+              )}
+            />
+          </View>
 
-            <Text
-              style={{
-                fontFamily: 'Poppins-SemiBold',
-                color: '#bacbc7',
-                marginVertical: hp('1%'),
-              }}>
-              {this.state.coinname} Amount
-            </Text>
-            <View style={styles.sidecont}>
-              <TextInput
-                style={styles.inputStyle}
-                placeholder={`Enter ${this.state.coinname} Amount`}
-                // maxLength={15}
-                placeholderTextColor={'#50826e'}
-                returnKeyType="done"
-                keyboardType="decimal-pad"
-                onChangeText={amount => this.wsamount(amount)}
-                value={this.state.amount}
-              />
-              <View style={styles.sideconts}>
-                <Image
-                  style={{
-                    width: 20,
-                    height: 20,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                  source={clogo}
-                  resizeMode="contain"
-                />
-              </View>
-            </View>
-            <View style={{flexDirection: 'row', alignSelf: 'center', top: 10}}>
-              <Icon
-                name="info-outline"
-                type="AntDesign"
-                color={'white'}
-                size={17}
-              />
-              <Text
+          <Text
+            style={{
+              fontFamily: 'Poppins-SemiBold',
+              color: '#bacbc7',
+              marginVertical: hp('1%'),
+              fontSize: 13.5,
+            }}>
+            Username / Email
+          </Text>
+          {/* ${this.state.coinname} */}
+          <View style={styles.sidecont}>
+            <TextInput
+              style={styles.inputStyle}
+              placeholder={`Receiver Username / Email`}
+              maxLength={25}
+              placeholderTextColor={'#50826e'}
+              returnKeyType="done"
+              onChangeText={raddress => this.wsraddress(raddress)}
+              value={this.state.raddress}
+            />
+            <View style={styles.sideconts}>
+              <Image
                 style={{
-                  color: '#c2f0c2',
-                  fontSize: 13,
-                }}>
-                Deposit -{' '}
-                <Text style={{fontFamily: 'Montserrat-ExtraBold'}}>
-                  {this?.state?.selectcoin?.ticker
-                    ? this?.state?.selectcoin?.ticker
-                    : null}
-                </Text>
-                {this.state.coinname} - Min -{' '}
-                <Text style={{fontFamily: 'Montserrat-ExtraBold'}}>
-                  {intrnltaxs ? intrnltaxs?.internal_transfer_min : '25'},
-                </Text>{' '}
-                Max -{' '}
-                <Text style={{fontFamily: 'Montserrat-ExtraBold'}}>
-                  {intrnltaxs ? intrnltaxs?.internal_transfer_max : '10000'},
-                </Text>{' '}
-                Fee-
-                <Text style={{fontFamily: 'Montserrat-ExtraBold'}}>
-                  {intrnltaxs ? intrnltaxs?.internal_transfer_fee : '0.5'}
-                </Text>
-                {intrnltaxs
-                  ? intrnltaxs?.internal_transfer_fee_type === 'percent'
-                    ? '%'
-                    : '/-'
-                  : '%'}
-              </Text>
-            </View>
-            <View style={styles.ButtonWrapper}>
-              <AnimateLoadingButton
-                ref={c => (this.loadingButton = c)}
-                width={wp('40%')}
-                height={hp('7%')}
-                backgroundColor="#63d35a"
-                justifyContent="center"
-                alignItems="center"
-                borderRadius={10}
-                titleFontFamily="Montserrat-SemiBold"
-                title="SUBMIT"
-                titleFontSize={hp('2.3%')}
-                titleColor="white"
-                onPress={this._onPresslogin.bind(this)}
+                  width: 20,
+                  height: 20,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                source={clogo}
+                resizeMode="contain"
               />
             </View>
           </View>
-       
+
+          <Text
+            style={{
+              fontFamily: 'Poppins-SemiBold',
+              color: '#bacbc7',
+              marginVertical: hp('1%'),
+            }}>
+            {this.state.coinname} Amount
+          </Text>
+          <View style={styles.sidecont}>
+            <TextInput
+              style={styles.inputStyle}
+              placeholder={`Enter ${this.state.coinname} Amount`}
+              // maxLength={15}
+              placeholderTextColor={'#50826e'}
+              returnKeyType="done"
+              keyboardType="decimal-pad"
+              onChangeText={amount => this.wsamount(amount)}
+              value={this.state.amount}
+            />
+            <View style={styles.sideconts}>
+              <Image
+                style={{
+                  width: 20,
+                  height: 20,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                source={clogo}
+                resizeMode="contain"
+              />
+            </View>
+          </View>
+          <View style={{flexDirection: 'row', alignSelf: 'center', top: 10}}>
+            <Icon
+              name="info-outline"
+              type="AntDesign"
+              color={'white'}
+              size={17}
+            />
+            <Text
+              style={{
+                color: '#c2f0c2',
+                fontSize: 13,
+              }}>
+              Deposit -{' '}
+              <Text style={{fontFamily: 'Montserrat-ExtraBold'}}>
+                {this?.state?.selectcoin?.ticker
+                  ? this?.state?.selectcoin?.ticker
+                  : null}
+              </Text>
+              {this.state.coinname} - Min -{' '}
+              <Text style={{fontFamily: 'Montserrat-ExtraBold'}}>
+                {intrnltaxs ? intrnltaxs?.internal_transfer_min : '25'},
+              </Text>{' '}
+              Max -{' '}
+              <Text style={{fontFamily: 'Montserrat-ExtraBold'}}>
+                {intrnltaxs ? intrnltaxs?.internal_transfer_max : '10000'},
+              </Text>{' '}
+              Fee-
+              <Text style={{fontFamily: 'Montserrat-ExtraBold'}}>
+                {intrnltaxs ? intrnltaxs?.internal_transfer_fee : '0.5'}
+              </Text>
+              {intrnltaxs
+                ? intrnltaxs?.internal_transfer_fee_type === 'percent'
+                  ? '%'
+                  : '/-'
+                : '%'}
+            </Text>
+          </View>
+          <View style={styles.ButtonWrapper}>
+            <AnimateLoadingButton
+              ref={c => (this.loadingButton = c)}
+              width={wp('40%')}
+              height={hp('7%')}
+              backgroundColor="#63d35a"
+              justifyContent="center"
+              alignItems="center"
+              borderRadius={10}
+              titleFontFamily="Montserrat-SemiBold"
+              title="SUBMIT"
+              titleFontSize={hp('2.3%')}
+              titleColor="white"
+              onPress={this._onPresslogin.bind(this)}
+            />
+          </View>
+        </View>
+
         <Modal
           transparent={true}
           animationType="fade"
@@ -918,7 +913,7 @@ const styles = StyleSheet.create({
     marginVertical: hp('1.5%'),
   },
 
-  maindropDownCon:{
+  maindropDownCon: {
     width: wp('90%'),
     height: hp('8%'),
     borderWidth: 1,
@@ -929,8 +924,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     //justifyContent: 'center',
     alignItems: 'center',
-    zIndex:500,
-    
+    zIndex: 500,
   },
   dropDownCont: {
     backgroundColor: '#02311d',
@@ -943,7 +937,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.27,
     shadowRadius: 4.65,
     elevation: 6,
-    right:30
   },
   dropdown: {
     width: wp('75%'),
@@ -953,14 +946,12 @@ const styles = StyleSheet.create({
     borderColor: '#00e859',
     backgroundColor: '#00311d',
     flexDirection: 'row',
-   
   },
   image: {
     width: 25,
     height: 25,
   },
-  toastCont:{
-    zIndex:6000
-  }
+  toastCont: {
+    zIndex: 6000,
+  },
 });
-

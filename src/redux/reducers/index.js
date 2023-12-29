@@ -9,6 +9,7 @@ import getreferalhisReducer from './getaffiliatehisReducer';
 import gettranshisReducer from './gettranshisReducer';
 import admintxesReducer from './admintaxReducer';
 import getreferalsumryReducer from './getafiliatesumryReducer';
+import detailsReducer from './DetailsReducer';
 
 export default function allReducers() {
   return combineReducers({
@@ -22,5 +23,6 @@ export default function allReducers() {
     gettranshis: gettranshisReducer,
     gettaxes: admintxesReducer,
     getrefsumry: getreferalsumryReducer,
+    details:detailsReducer
   });
 }

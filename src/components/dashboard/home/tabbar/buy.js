@@ -10,6 +10,7 @@ import {
   RefreshControl,
   SafeAreaView,
   TextInput,
+  Alert,
 } from 'react-native';
 import {Icon} from 'react-native-elements';
 import {
@@ -24,7 +25,19 @@ import Toast from 'react-native-toast-message';
 import {backEndCallObj} from '../../../../services/allService';
 import LinearGradient from 'react-native-linear-gradient';
 import CountryCurrencyPicker from 'react-native-country-currency-picker';
+import AnimateLoadingButton from 'react-native-animate-loading-button';
+const Joi = require('joi-browser');
+const schema = Joi.object().keys({
+  amount: Joi.number()
+    .min(100)
 
+    .error(() => {
+      return {
+        message: 'Minumum amount is 100 PHP',
+      };
+    })
+    .required(),
+});
 class Buy extends Component {
   state = {
     cointypes: [],
@@ -32,7 +45,9 @@ class Buy extends Component {
     amount: '',
     errors: '',
     selectcoin: {},
-    demo4: {},
+    buttonDisabled: true,
+    buttonshow: true,
+    enterUsdt:''
   };
   componentDidMount = async () => {
     const coins = this?.props?.gettaxes?.coins;
@@ -59,6 +74,13 @@ class Buy extends Component {
       );
       const reppo = na.replace(' ', '');
       await this.setState({amount: reppo});
+      if(reppo !== ''){
+      const phpToUsdtConversionRate=57.100
+      const convertedValue = parseFloat(reppo) / phpToUsdtConversionRate;
+      this.setState({enterUsdt:convertedValue.toFixed(3)});
+      }else{
+        this.setState({enterUsdt:''})
+      }
     }
   };
 
@@ -77,7 +99,57 @@ class Buy extends Component {
       currency: data.currency,
     });
   };
+  _onProceed = async () => {
+    this.loadingButton.showLoading(true);
+    await this.setState({buttonDisabled: true, buttonshow: false});
+    const {amount} = this.state;
 
+    let val = '';
+    const validata = Joi.validate({amount}, schema, function (err, value) {
+      if (!err) return null;
+      const reter = err.details[0].message;
+      val = err.details[0].context.key;
+      return reter;
+    });
+    if (validata) {
+      await this.setState({errors: validata});
+      showToast('error', this.state.errors);
+      this.loadingButton.showLoading(false);
+      await this.setState({buttonDisabled: true, buttonshow: true});
+      setTimeout(async () => {
+        this.loadingButton.showLoading(false);
+        await this.setState({errors: null});
+      }, 1000);
+    } else {
+      try {
+        if (!this.props?.userData.kyc_status=='pending') {
+          console.log('kyc done');
+        } else {
+          showToast(
+            'error',
+            'Kindly Complete your KYC first to use OTC services!',
+          );
+          setTimeout(() => {
+            this.props?.props?.props?.navigation?.navigate('Profile');
+          }, 1000);
+        }
+
+        console.log('excuted');
+      } catch (ex) {
+        if (ex.response && ex.response.status === 400) {
+          await this.setState({buttonDisabled: true, buttonshow: true});
+          await this.setState({errors: ex.response.data});
+          showToast('error', this.state.errors);
+          this.loadingButton.showLoading(false);
+
+          setTimeout(async () => {
+            this.loadingButton.showLoading(false);
+            await this.setState({errors: null});
+          }, 2000);
+        }
+      }
+    }
+  };
   render() {
     return (
       <View>
@@ -110,22 +182,21 @@ class Buy extends Component {
                 countries={['PH', 'IN', 'TR', 'AE', 'VN']}
                 label={'currency'}
                 onValueChange={(value, data) => this.onValuechange(data)}
-                iconStyle={{width: 23, height: 23, left: 5}}
+                iconStyle={{width: 20, height: 20, left: 5}}
                 rowLabelStyle={{
                   color: '#91efdb',
                   left: 5,
                   fontFamily: 'Montserrat-SemiBold',
-                
+                  height: 25,
+                  top: 3,
                 }}
-                //rowStyle={{backgroundColor:"green"}}
                 dropdownStyle={{
                   backgroundColor: '#00311d',
                   width: 100,
-                  marginTop: 10,
+                  marginTop: 15,
                   borderWidth: 0,
-                  height:'auto'
+                  height: 'auto',
                 }}
-           
               />
             </View>
           </View>
@@ -162,7 +233,7 @@ class Buy extends Component {
                 returnKeyType="done"
                 keyboardType="decimal-pad"
                 onChangeText={e => console.log(e)}
-                value={this.state.amount}
+                value={this.state.enterUsdt}
                 editable={false}
               />
             </View>
@@ -188,11 +259,28 @@ class Buy extends Component {
           <Text style={{fontFamily: 'Montserrat-SemiBold', color: 'white'}}>
             1 USDT ≈ 57.22 PHP
           </Text>
-          <TouchableOpacity style={styles.btn}>
-            <Text style={{color: '#b8dcd4', fontFamily: 'Montserrat-SemiBold'}}>
-              Comming Soon...
+          <View style={styles.ButtonWrapper}>
+            <AnimateLoadingButton
+              ref={c => (this.loadingButton = c)}
+              width={wp('45%')}
+              height={hp('6%')}
+              backgroundColor={this.state.currency == 'PHP'?"#63d35a":"#003624"}
+              justifyContent="center"
+              alignItems="center"
+              borderRadius={10}
+              titleFontFamily="Montserrat-SemiBold"
+              title={this.state.currency == 'PHP' ? 'Proceed' : 'Comming Soon...'}
+              titleFontSize={hp('2.3%')}
+              titleColor={this.state.currency == 'PHP'?'black':'#fff'}
+              onPress={this._onProceed.bind(this)}
+              disabled={this.state.currency == 'PHP' ? false : true}
+            />
+          </View>
+          {/* <TouchableOpacity style={styles.btn}>
+            <Text style={{color: '#fff', fontFamily: 'Montserrat-SemiBold',fontSize:17}}>
+              Proceed
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     );
@@ -201,6 +289,7 @@ class Buy extends Component {
 
 const mapStateToProps = state => {
   return {
+    userData: state.getprofil,
     getprfithis: state.getprfithis,
   };
 };
@@ -268,6 +357,7 @@ const styles = StyleSheet.create({
     borderColor: '#006622',
     borderRadius: 15,
     top: 10,
+    backgroundColor: '#63d35a',
   },
 
   container: {
@@ -287,5 +377,10 @@ const styles = StyleSheet.create({
   },
   containerStyle: {
     alignSelf: 'flex-end',
+  },
+  ButtonWrapper: {
+    flexDirection: 'row',
+    marginTop: hp('5%'),
+    alignSelf: 'center',
   },
 });

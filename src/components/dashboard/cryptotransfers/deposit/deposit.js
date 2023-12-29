@@ -13,12 +13,13 @@ import {
   FlatList,
   Alert,
 } from 'react-native';
+
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import AnimateLoadingButton from 'react-native-animate-loading-button';
-import {Dropdown} from 'react-native-element-dropdown';
+import DropDownPicker from 'react-native-dropdown-picker';
 import Clipboard from '@react-native-community/clipboard';
 import {Header, Icon, Badge, Button} from 'react-native-elements';
 import {connect} from 'react-redux';
@@ -64,18 +65,11 @@ class Deposit extends Component {
     modaldata: {},
     popup: false,
     resp: {},
+    accepted_coins:[]
   };
 
   componentDidMount = async () => {
-    const coins = this?.props?.gettaxes?.coins;
-    var tickers = coins?.map(k => k?.ticker);
-    var ticarr = [];
-    tickers?.forEach(e => {
-      var fr = {label: e, value: e};
-      ticarr.push(fr);
-    });
-    console.log(ticarr, 'depost');
-    await this.setState({cointypes: ticarr});
+    this.getAcceptedCoins()    
   };
 
   wsamount = async amount => {
@@ -211,6 +205,43 @@ class Deposit extends Component {
       Alert.alert('Error', error.message);
     }
   };
+  
+  selectCoin = name => {
+    this.setState({
+      coinname: name,
+
+    });
+  };
+  setOpen = () => {
+    this.setState({open: !this.state.open});
+  };
+  
+ onSelect=(data)=>{
+  this.setState({coinname:data.label,open:false})
+ }
+
+ getAcceptedCoins=()=>{
+  const coins = this?.props?.gettaxes?.coins;
+
+    var tickers = coins?.map(k => k?.ticker);
+    var ticarr = [];
+    tickers?.forEach(e => {
+      var fr = {
+        label: e,
+        value: e,
+        icon:() => (
+          <Image
+            source={e=="USDT"?usdt:e=='USDC'?usdc:busd}
+            style={styles.image}
+          />
+        ),
+      };
+
+     ticarr.push(fr);
+this.setState({accepted_coins:ticarr})
+
+    });
+}
 
   render() {
     const clogo =
@@ -221,6 +252,7 @@ class Deposit extends Component {
           ? usdc
           : busd
         : null;
+     
     return (
       <LinearGradient
         start={{x: 0, y: 0}}
@@ -231,54 +263,27 @@ class Deposit extends Component {
         <View style={{top: hp('10%')}}>
           <View style={{marginHorizontal: wp('5%')}}>
             <Text style={styles.selectCointext}>Select Coin</Text>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              {/* <View style={styles.sidecont}>
-                <View style={styles.sideconts}>
-                  <Image
-                    style={{
-                      width: 30,
-                      height: 30,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                    source={clogo}
-                    resizeMode="contain"
-                  />
-                </View>
-                <TextInput
-                  style={styles.inputStyle}
-                  placeholder="Enter Amount To Deposit"
-                  placeholderTextColor={'white'}
-                  returnKeyType="done"
-                  keyboardType="decimal-pad"
-                  onChangeText={amount => this.wsamount(amount)}
-                  value={this.state.amount}
-                />
-              </View> */}
-              <Dropdown
-                style={styles.dropdown}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
-                iconStyle={styles.iconStyle}
-                itemTextStyle={styles.itemtext}
-                data={this.state.cointypes}
-                maxHeight={250}
-                labelField="label"
-                valueField="value"
-                placeholder={'--Select--'}
-                searchPlaceholder="Search..."
-                value={this.state.coinname}
-                onChange={item => {
-                  this.regionsel(item);
-                }}
-              />
-            </View>
+            <DropDownPicker
+              items={this.state.accepted_coins}
+              dropDownContainerStyle={styles.dropDownCont}
+              style={styles.maindropDownCon}
+              placeholderStyle={{color: '#a9efdb',left:25}}
+              value={this.state.coinname}
+              setOpen={this.setOpen}
+             placeholder={'--select--'}
+              open={this.state.open}
+              listItemLabelStyle={{color:"#fff",}}
+              TickIconComponent={(style)=>(<Icon name='check' type='Entypo' color={'#fff'}/>)}
+              showTickIcon={true}
+              tickIconStyle={{width:20,height:20,color:"#fff"}}
+              onSelectItem={data=>this.onSelect(data)}
+             selectedItemContainerStyle={{backgroundColor:"#00271a"}}
+           labelStyle={{color:"#a9efdb"}}
+             multiple={false}
+             ArrowDownIconComponent={()=>(<Icon name='arrow-drop-down' type='FontAwesome' color={'#a9efdb'}/>)}
+             ArrowUpIconComponent={()=>(<Icon name='arrow-drop-up' type='FontAwesome' color={'#a9efdb'}/>)}
+   
+             />
             <View style={styles.ButtonWrapper}>
               <AnimateLoadingButton
                 ref={c => (this.loadingButton = c)}
@@ -295,45 +300,50 @@ class Deposit extends Component {
                 onPress={this._ondeposit.bind(this)}
               />
             </View>
-            <View style={{alignSelf: 'center', flexDirection: 'row',top:20}}>
-            <Icon name='info-outline' type='AntDesign' color={'#cacac5'}  size={17}/>
-              
-                <Text
-                  style={{
-                    color: '#cacac5',
-                    fontSize: 13,
-                  }}>
-                  Deposit -{' '}
-                  <Text style={{fontFamily: 'Montserrat-ExtraBold'}}>
-                    {this.state.coinname ? this.state.coinname : null}
-                  </Text>
-                  - Min -{' '}
-                  <Text style={{fontFamily: 'Montserrat-ExtraBold'}}>
-                    {this?.state?.selectcoin?.deposit
-                      ? this?.state?.selectcoin?.deposit?.deposit_min
-                      : '0'}
-                    ,
-                  </Text>{' '}
-                  Max -{' '}
-                  <Text style={{fontFamily: 'Montserrat-ExtraBold'}}>
-                    {this?.state?.selectcoin?.deposit
-                      ? this?.state?.selectcoin?.deposit?.deposit_max
-                      : '0'}
-                    ,
-                  </Text>{' '}
-                  Fee -{' '}
-                  <Text style={{fontFamily: 'Montserrat-ExtraBold'}}>
-                    {this?.state?.selectcoin?.deposit
-                      ? this?.state?.selectcoin?.deposit?.deposit_fee
-                      : '0'}{' '}
-                  </Text>
-                  {this?.state?.selectcoin?.deposit
-                    ? this?.state?.selectcoin?.deposit?.deposit_fee_type ===
-                      'percent'
-                      ? '%'
-                      : '/-'
-                    : '%'}
+            <View style={{alignSelf: 'center', flexDirection: 'row', top: 20}}>
+              <Icon
+                name="info-outline"
+                type="AntDesign"
+                color={'#cacac5'}
+                size={17}
+              />
+
+              <Text
+                style={{
+                  color: '#cacac5',
+                  fontSize: 13,
+                }}>
+                Deposit -{' '}
+                <Text style={{fontFamily: 'Montserrat-ExtraBold'}}>
+                  {this.state.coinname ? this.state.coinname : null}
                 </Text>
+                - Min -{' '}
+                <Text style={{fontFamily: 'Montserrat-ExtraBold'}}>
+                  {this?.state?.selectcoin?.deposit
+                    ? this?.state?.selectcoin?.deposit?.deposit_min
+                    : '0'}
+                  ,
+                </Text>{' '}
+                Max -{' '}
+                <Text style={{fontFamily: 'Montserrat-ExtraBold'}}>
+                  {this?.state?.selectcoin?.deposit
+                    ? this?.state?.selectcoin?.deposit?.deposit_max
+                    : '0'}
+                  ,
+                </Text>{' '}
+                Fee -{' '}
+                <Text style={{fontFamily: 'Montserrat-ExtraBold'}}>
+                  {this?.state?.selectcoin?.deposit
+                    ? this?.state?.selectcoin?.deposit?.deposit_fee
+                    : '0'}{' '}
+                </Text>
+                {this?.state?.selectcoin?.deposit
+                  ? this?.state?.selectcoin?.deposit?.deposit_fee_type ===
+                    'percent'
+                    ? '%'
+                    : '/-'
+                  : '%'}
+              </Text>
             </View>
           </View>
         </View>
@@ -584,36 +594,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 
-  dropdown: {
-    width: wp('55%'),
-    height: hp('7%'),
-    borderColor: '#00e859',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: wp('1%'),
-    backgroundColor:"#00311d"
-  },
-  placeholderStyle: {
-    fontSize: hp('2%'),
-    fontFamily: 'Montserrat-Medium',
-    color: '#3e705c',
-    left: 20,
-  },
-  selectedTextStyle: {
-    fontSize: hp('1.8%'),
-    fontFamily: 'Montserrat-Medium',
-  },
-  inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
-  },
-  iconStyle: {
-    width: 20,
-    height: 20,
-  },
-  itemtext: {
-    fontSize: 13.5,
-  },
 
   modalcontainer: {
     justifyContent: 'center',
@@ -702,5 +682,34 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     color: '#bacbc7',
     fontFamily: 'Poppins-SemiBold',
+  },
+  dropDownCont: {
+    backgroundColor: '#02311d',
+    borderWidth: 0,
+    shadowColor: 'black',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.27,
+    shadowRadius: 4.65,
+    elevation: 6,
+  },
+  maindropDownCon:{
+    width: wp('90%'),
+    height: hp('8%'),
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: wp('1%'),
+    borderColor: '#00e859',
+    backgroundColor: '#00311d',
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex:500,
+    
+  },
+  image: {
+    width: 25,
+    height: 25,
   },
 });

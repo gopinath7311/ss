@@ -8,7 +8,7 @@ import {
     heightPercentageToDP as hp,
   } from 'react-native-responsive-screen';
 import Buy from './buy';
-import sell from './sell';
+import Sell from './sell';
 
 
 
@@ -30,8 +30,8 @@ export default class Crypotswap extends React.Component {
             style={styles.conts}
             navigationState={this.state}
             renderScene={SceneMap({
-              first:Buy,
-              second: sell,
+              first:()=><Buy props={this.props}/>,
+              second:()=><Sell props={this.props}/>,
         
             })}
             renderTabBar={props => (

@@ -30,14 +30,16 @@ class Splash extends Component {
       await NetInfo.fetch().then(async state => {
         if (state.isConnected) {
           const user = await auth.getCurrentUser();
-
+        
           if (user && user?.user_email) {
             await update_auth();
             await allactions();
 
             this.props.navigation.navigate('home');
           } else {
-            this.props.navigation.navigate("home")
+            this.props.navigation.navigate('home');
+
+            //this.props.navigation.navigate("login")
           }
         } else {
           Alert.alert(
@@ -87,6 +89,7 @@ class Splash extends Component {
   };
 
   render() {
+
     return (
       <SafeAreaView>
         <View

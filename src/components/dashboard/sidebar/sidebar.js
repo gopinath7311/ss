@@ -235,14 +235,24 @@ class Sidebar extends Component {
                     <Text style={[styles.icontext]}>Logout</Text>
                   </View>
                 </TouchableOpacity>
-                
+                <View style={styles.providersCont}>
+<View style={{flexDirection:"row"}}>
+<Icon name='person' type='ionicons' color={'#fff'}/>
+<Text style={styles.providersText}>Total Providers</Text>
+</View>
+<Text style={styles.providersNum}>600</Text>
+<View style={{flexDirection:"row"}}>
+<Icon name='switch-access-shortcut-add' type='AntDesing' color={'#fff'}/>
+<Text style={styles.providersText}>Liquidity Provided</Text>
+</View>
+<Text style={styles.providersNum}>362,069</Text>
+                </View>
 
               </View>
             </View>
             <View
               style={{
                 alignItems: 'flex-end',
-                marginTop: hp('10%'),
                 marginRight: 10,
               }}>
               <Text
@@ -310,4 +320,21 @@ const styles = StyleSheet.create({
   txt: {
     fontFamily: 'Montserrat-Medium',
   },
+  providersCont:{
+    borderWidth:0.5,
+    borderColor:"#336631",
+    justifyContent:"center",
+    alignItems:"center",
+    width:wp('50%'),
+    top:10,
+    borderRadius:hp('1%')
+  },
+  providersText:{
+    color:'#03cc4f',
+    fontFamily:"YoungSerif-Regular"
+  },
+  providersNum:{
+    color:"#fff",
+    fontFamily:'Poppins-SemiBold'
+  }
 });

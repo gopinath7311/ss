@@ -16,20 +16,7 @@ const arr = [
     aprPer: '36.50',
   },
 ];
-const coin = [
-  {
-    img: require('../../../assests/images/usdt1.png'),
-    coin: 'USDT',
-  },
-  {
-    img: require('../../../assests/images/cicon1.png'),
-    coin: 'USDC',
-  },
-  {
-    img: require('../../../assests/images/busd1.png'),
-    coin: 'BUSD',
-  },
-];
+
 import {
   SafeAreaView,
   Text,
@@ -58,7 +45,9 @@ import CountDown from 'react-native-countdown-component';
 import Toast from 'react-native-toast-message';
 import {showToast} from '../../../services/toastService';
 const Joi = require('joi-browser');
-
+const usdt = require('../../../assests/images/usdt1.png');
+const usdc = require('../../../assests/images/cicon1.png');
+const busd = require('../../../assests/images/busd_white.png');
 const schema = Joi.object().keys({
   selectedCoin: Joi.string()
     .error(() => {
@@ -92,10 +81,13 @@ class Liquidity extends Component {
     buttonDisabled: false,
     er: '',
     amountErr: '',
-    isChecked:false
+    isChecked:false,
+    accepted_coins:[]
   };
 
-  async componentDidMount() {}
+  async componentDidMount() {
+    this.getAcceptedCoins()
+  }
   toggleModal = async () => {
     await this.setState({
       isModalVisible: !this.state.isModalVisible,
@@ -151,8 +143,30 @@ class Liquidity extends Component {
         await this.setState({amount: reppo,amountErr:""});
     }
   };
+  getAcceptedCoins=async()=>{
+    const coins = this?.props?.gettaxes?.coins;
+    const getprofile = this?.props?.getprofil;  
+  
+      var tickers = coins?.map(k => k?.ticker);
+      var ticarr = [];
+      tickers?.forEach(e => {
+        var fr = {
+          lable: e,
+          value: e,
+          balance:
+            e == 'USDT'
+              ? getprofile?.balances?.USDT
+              : e == 'USDC'
+              ?getprofile.balances?.USDC
+              :getprofile.balances?.BUSD,
+        };
+  
+       ticarr.push(fr);
+  this.setState({accepted_coins:ticarr})
+      });
+  }
   render() {
-    // console.log(this.state.errors,this.state.er)
+const {accepted_coins}=this.state
     return (
       <View style={styles.container}>
         <View
@@ -501,14 +515,14 @@ class Liquidity extends Component {
                       marginTop: 30,
                       flexWrap: 'wrap',
                     }}>
-                    {coin.map(data => (
+                    {accepted_coins.map(data => (
                       <TouchableOpacity
                         style={styles.coinBox}
-                        onPress={() => this.selectCoin(data.coin)}>
-                        <Image source={data.img} style={styles.img} />
-                        <Text style={styles.coinText}>{data.coin}</Text>
-                        <Text style={styles.BalText}>Balance 0.00</Text>
-                        {data.coin == this.state.selectedCoin ? (
+                        onPress={() => this.selectCoin(data.lable)}>
+                        <Image    source={data?.lable=="USDT"?usdt:data?.lable=='USDC'?usdc:busd} style={styles.img} />
+                        <Text style={styles.coinText}>{data.lable}</Text>
+                        <Text style={styles.BalText}>Balance {data.balance}</Text>
+                        {data.lable == this.state.selectedCoin ? (
                           <View
                             style={{position: 'absolute', right: -5, top: -10}}>
                             <Icon
@@ -534,7 +548,6 @@ class Liquidity extends Component {
                     }}>
                     Amount
                   </Text>
-
                   <TextInput
                     style={styles.inputStyle}
                     placeholderTextColor={'#a6caaf'}
@@ -557,10 +570,12 @@ class Liquidity extends Component {
                   onClick={() => {
                     this.setState({
                       isChecked: !this.state.isChecked,
+
+                      
                     });
                   }}
                   isChecked={this.state.isChecked}
-                  checkBoxColor={'#ff3385'}
+                  checkBoxColor={'#fff'}
                   style={{marginLeft: wp('3.5%'), marginRight: wp('1%')}}
                 />
                   <Text
@@ -620,6 +635,8 @@ class Liquidity extends Component {
 const mapStateToProps = state => {
   return {
     auth: state.auth,
+    gettaxes: state.gettaxes,
+    getprofil: state.getprofil,
   };
 };
 
@@ -717,7 +734,7 @@ const styles = StyleSheet.create({
   },
   popGradient: {
     width: wp('95%'),
-    height: hp('90%'),
+   // height: hp('90%'),
     borderRadius: hp('1.5%'),
     borderWidth: 0.5,
     borderLeftColor: '#5c6b9e',

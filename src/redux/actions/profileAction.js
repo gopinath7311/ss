@@ -11,7 +11,6 @@ function get_profile() {
       await http.setJwt();
 
       const authy = await profileService.getprofile();
-
       store.dispatch({type: GET_PROFILE, payload: authy.success});
     } catch (error) {}
   }, 100);

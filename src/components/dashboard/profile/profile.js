@@ -46,8 +46,8 @@ class Profile extends Component {
     address: '',
     country: '',
     nationality: '',
-    profileDetails:'',
-    code:'',
+    profileDetails: '',
+    code: '',
   };
   handleClick = async () => {
     const options = {};
@@ -104,8 +104,8 @@ class Profile extends Component {
           address: this.state.address,
         };
         console.log(obj, 'new obj');
-        this.setState({profileDetails:obj})
-        this.setState({updateDetails:true})
+        this.setState({profileDetails: obj});
+        this.setState({updateDetails: true});
         // if (dat.success) {
         //   showToast('success', dat.success);
         //   await allactions();
@@ -173,8 +173,9 @@ class Profile extends Component {
   };
   render() {
     const user = this.props?.getprofil;
+
     const det = moment().subtract(18, 'years');
-const {profDetails}=this.state
+
     return (
       <View style={{flex: 1, backgroundColor: '#000000'}}>
         <View style={styles.headerCont}>
@@ -210,33 +211,37 @@ const {profDetails}=this.state
                 </TouchableOpacity>
               </TouchableOpacity>
             </View>
-            <Text style={styles.text}>Torrento</Text>
-            <Text style={styles.text}>UA9BD77FD14BAF72F</Text>
+            <Text style={styles.text}>{user?.user_name}</Text>
+            <Text style={styles.text}>{user?.userid}</Text>
             <Text style={[styles.text, {color: '#dc3545'}]}>Un-Verfied</Text>
 
             <View style={styles.line}></View>
             <Toast />
-            {this.state.updateDetails ? (
+            {user.profile ? (
               <View>
                 <View style={styles.profDetails}>
                   <Icon type="Ionicons" name="person" color={'white'} />
-                  <Text style={styles.profText}>{this.state.profileDetails?.full_name}</Text>
+                  <Text style={styles.profText}>{user.profile?.full_name}</Text>
                 </View>
                 <View style={styles.profDetails}>
                   <Icon type="Ionicons" name="call" color={'white'} />
-                  <Text style={styles.profText}>+{this.state.profileDetails?.phone_number}</Text>
+                  <Text style={styles.profText}>{user.profile?.phone}</Text>
                 </View>
                 <View style={styles.profDetails}>
                   <Icon type="Ionicons" name="calendar-month" color={'white'} />
-                  <Text style={styles.profText}>{this.state.profileDetails.dob}</Text>
+                  <Text style={styles.profText}>
+                    {user.profile?.date_of_birth}
+                  </Text>
                 </View>
                 <View style={styles.profDetails}>
                   <Icon type="FontAwesome" name="contacts" color={'white'} />
-                  <Text style={styles.profText}>{this.state.profileDetails.address}</Text>
+                  <Text style={styles.profText}>{user.profile?.address}</Text>
                 </View>
                 <View style={[styles.profDetails]}>
                   <Icon type="FontAwesome" name="place" color={'white'} />
-                  <Text style={styles.profText}>{this.state.profileDetails.country}</Text>
+                  <Text style={styles.profText}>
+                    {user.profile?.nationality}
+                  </Text>
                 </View>
               </View>
             ) : (
@@ -256,6 +261,15 @@ const {profDetails}=this.state
                   onCancel={this.onCancel}
                   onConfirm={this.onConfirm}
                 />
+                <Text
+                  style={{
+                    color: '#fff',
+                    alignSelf: 'center',
+                    fontSize: 20,
+                    fontFamily: 'Poppins-SemiBold',
+                  }}>
+                  Update Profile
+                </Text>
                 <View
                   style={{
                     flexDirection: 'row',
@@ -331,7 +345,7 @@ const {profDetails}=this.state
                         translation="eng"
                         placeholder={
                           this.state.code
-                            ? '+' + this.state.code
+                            ? +this.state.code
                             : this.state.placeholder
                         }
                         onSelect={country => {
@@ -346,7 +360,6 @@ const {profDetails}=this.state
                           onBackgroundTextColor: 'white',
                           backgroundColor: 'black',
                         }}
-                        
                       />
                     </View>
 
@@ -404,7 +417,7 @@ const {profDetails}=this.state
                       onPress={() => this.opendatepicker()}>
                       <Text style={{color: '#b3b3b3', fontSize: 12, left: 20}}>
                         {this.state.dob
-                          ?  this.state.dob
+                          ? this.state.dob
                           : '--Please Select Date Of Birth--'}
                       </Text>
                     </TouchableOpacity>
@@ -443,7 +456,6 @@ const {profDetails}=this.state
                         },
                       ]}
                       placeholder="Please Enter Address"
-                   
                       placeholderTextColor={'#b3b3b3'}
                       returnKeyType="done"
                       multiline={true}
@@ -536,7 +548,7 @@ const {profDetails}=this.state
               />
               <Text style={styles.text2}>Active Liquidity</Text>
             </View>
-            <Text style={styles.numText}>0.00</Text>
+            <Text style={styles.numText}>{user?.stats?.active_staked}</Text>
             <View style={{flexDirection: 'row', left: 10, top: 10}}>
               <Icon
                 name="money"
@@ -547,7 +559,9 @@ const {profDetails}=this.state
               />
               <Text style={styles.text2}>Total Liquidity</Text>
             </View>
-            <Text style={[styles.numText, {marginBottom: 20}]}>0.00</Text>
+            <Text style={[styles.numText, {marginBottom: 20}]}>
+              {user?.stats?.total_staked}
+            </Text>
           </View>
           <View style={styles.box}>
             <Icon
@@ -588,24 +602,27 @@ const {profDetails}=this.state
                 color: '#fff',
                 fontSize: 19,
                 fontFamily: 'Poppins-SemiBold',
+                textAlign: 'center',
               }}>
-              Two Factor Authenctication
+              {user?.TWO_FA_status == 'Disable'
+                ? 'Two Factor Authenctication'
+                : 'Disable Two-Factor Authentication? If you disable Two-Factor Authentication, your Account will be protected with only your password and Email OTP.'}
             </Text>
             <Text
               style={{
                 color: '#b3b3b3',
                 textAlign: 'center',
-                fontSize: 18,
+                fontSize: 17,
                 width: wp('85%'),
               }}>
-              Two Factor Authentication adds an extra layer of security to your
-              Account. Once Enabled, each time you will also be prompted to
-              enter a code which is generated by your smartphone.
+              {user?.TWO_FA_status == 'Disable'
+                ? 'Two Factor Authentication adds an extra layer of security to your Account. Once Enabled, each time you will also be prompted to enter a code which is generated by your smartphone.'
+                : 'To Disable/Deactivate 2fa you will Recieve an OTP to your Registered Email.'}
             </Text>
             <TouchableOpacity
               style={styles.fa2}
               onPress={() => this.props.navigation.navigate('2fa')}>
-              <Text style={{color: '#00f9f1', fontSize: 18}}>Enable 2FA</Text>
+              <Text style={{color: '#00f9f1', fontSize: 18}}>{user?.TWO_FA_status =='Disable'?'Enable 2FA':'Receive OTP'}</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

@@ -132,7 +132,7 @@ class Factor2FA extends Component {
         if (res) {
           showToast('success', res?.success);
           setTimeout(async () => {
-            await authService.logout();
+            await authService.logout(this.props);
             this.props.navigation.navigate('login');
           }, 1000);
         }
@@ -224,7 +224,7 @@ class Factor2FA extends Component {
         if (res) {
           showToast('success', res?.success);
           setTimeout(async () => {
-            await authService.logout();
+            await authService.logout(this.props);
             Actions.login();
             this.props.navigation.navigate('login');
           }, 1000);
@@ -388,8 +388,10 @@ class Factor2FA extends Component {
                         fontSize: 17,
                         marginTop: hp('0.5%'),
                         left: 15,
+                        width:wp('85%')
                       }}>
                       {this?.state?.response?.secret}
+                  
                     </Text>
                   ) : null}
                   <Text

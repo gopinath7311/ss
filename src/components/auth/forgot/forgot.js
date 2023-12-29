@@ -188,11 +188,11 @@ export default class Forgot extends Component {
         };
         const dat = await backEndCallObj('/user/forgot', obj);
         if (dat.success) {
+          showToast('success', dat.success);
           const fobj = {
             email: obj.user_email,
             responc: dat,
           };
-          
           this.props.navigation.navigate('resetpass', {fdata: fobj});
           this.loadingButton.showLoading(false);
         }
@@ -202,7 +202,6 @@ export default class Forgot extends Component {
           await this.setState({errors: ex.response.data});
           showToast('error', this.state.errors);
           this.loadingButton.showLoading(false);
-
           setTimeout(async () => {
             this.loadingButton.showLoading(false);
             await this.setState({errors: null});
@@ -228,10 +227,8 @@ export default class Forgot extends Component {
             }}
             resizeMode="contain"
           />
-
-          <Toast />
-
           <View style={styles.FormArea}>
+          <Toast/>
           <Text
               style={{
                 color: '#fff',

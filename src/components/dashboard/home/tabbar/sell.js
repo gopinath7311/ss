@@ -28,34 +28,20 @@ import Toast from 'react-native-toast-message';
 import {backEndCallObj} from '../../../../services/allService';
 import LinearGradient from 'react-native-linear-gradient';
 import CountryCurrencyPicker from 'react-native-country-currency-picker';
+import AnimateLoadingButton from 'react-native-animate-loading-button';
+const Joi = require('joi-browser');
+const schema = Joi.object().keys({
+  phpAmount: Joi.number()
+    .min(100)
 
-const local_data = [
-  {
-    value: '1',
-    label: 'PHP',
-  },
-  {
-    value: '2',
-    label: 'INR',
-  },
-  {
-    value: '3',
-    label: 'TRY',
-  },
-  {
-    value: '3',
-    label: 'AED',
-  },
-  {
-    value: '3',
-    label: 'VND',
-  },
-];
-const php = require('../../../../assests/images/php.png');
-const inr = require('../../../../assests/images/inr.png');
-const tryy = require('../../../../assests/images/try.png');
-const aed = require('../../../../assests/images/aed.png');
-const vnd = require('../../../../assests/images/vnd.png');
+    .error(() => {
+      return {
+        message: 'Minumum amount is 100 PHP',
+      };
+    })
+    .required(),
+});
+
 class Sell extends Component {
   state = {
     cointypes: [],
@@ -63,11 +49,8 @@ class Sell extends Component {
     amount: '',
     errors: '',
     selectcoin: {},
-    isModalVisible: false,
-    modaldata: {},
-    popup: false,
-    resp: {},
-    modalVisible:false
+    phpAmount:'',
+ 
   };
   componentDidMount = async () => {
     const coins = this?.props?.gettaxes?.coins;
@@ -94,9 +77,37 @@ class Sell extends Component {
       );
       const reppo = na.replace(' ', '');
       await this.setState({amount: reppo});
+      if(reppo !== ''){
+      phpToUsdtConversionRate=57.1
+      const convertedValue = parseFloat(reppo) * phpToUsdtConversionRate;
+      this.setState({phpAmount:convertedValue.toFixed(3)});
+      }else{
+        this.setState({phpAmount:''})
+      }
     }
   };
-
+phpamount=async(amount)=>{
+  if (amount[0] == 0) {
+    showToast('error', "Don't Enter space & '0' before Amount.");
+    await this.setState({phpAmount: ''});
+  } else {
+    await this.setState({phpAmount: amount});
+    await this.setState({buttonDisabled: false});
+    let na = amount.replace(
+      /[`~!@#$%^&*()_|+\-=?;:'",<>×÷⋅°π©℗®™√€£¥¢✓N•△¶∆\{\}\[\]\\\/]/gi,
+      '',
+    );
+    const reppo = na.replace(' ', '');
+    await this.setState({phpAmount: reppo});
+    if(reppo !== ''){
+    const phpToUsdtConversionRate=57.100
+    const convertedValue = parseFloat(reppo) / phpToUsdtConversionRate;
+    this.setState({amount:convertedValue.toFixed(3)});
+    }else{
+      this.setState({amount:''})
+    }
+  }
+}
   regionsel = async item => {
     await this.setState({
       coinname: item?.value,
@@ -115,38 +126,78 @@ class Sell extends Component {
       popup: false,
     });
   };
-  selectCoinModal =  () => {
+  selectCoinModal = () => {
+    this.setState({
+      modalVisible: !this.state.modalVisible,
+    });
+  };
+  selectCoin = name => {
+    this.setState({
+      currency: name,
+      modalVisible: !this.state.modalVisible,
+    });
+  };
+  onValuechange = data => {
+    this.setState({
+      currency: data.currency,
+    });
+  };
+  _onProceed = async () => {
+    this.loadingButton.showLoading(true);
+    await this.setState({buttonDisabled: true, buttonshow: false});
+    const {phpAmount} = this.state;
 
-    this.setState({
-     modalVisible: !this.state.modalVisible,
-   });
- };
- selectCoin =  name => {
-    this.setState({
-     currency: name,
-     modalVisible: !this.state.modalVisible,
-   });
- };
- onValuechange = data => {
-  this.setState({
-    currency: data.currency,
-  });
-};
+    let val = '';
+    const validata = Joi.validate({phpAmount}, schema, function (err, value) {
+      if (!err) return null;
+      const reter = err.details[0].message;
+      val = err.details[0].context.key;
+      return reter;
+    });
+    if (validata) {
+      await this.setState({errors: validata});
+      showToast('error', this.state.errors);
+      this.loadingButton.showLoading(false);
+      await this.setState({buttonDisabled: true, buttonshow: true});
+      setTimeout(async () => {
+        this.loadingButton.showLoading(false);
+        await this.setState({errors: null});
+      }, 2000);
+    } else {
+      try {
+        if (false) {
+          console.log('kyc done');
+        } else {
+          showToast(
+            'error',
+            'Kindly Complete your KYC first to use OTC services!',
+          );
+          setTimeout(() => {
+            this.props?.props?.props?.navigation?.navigate('Profile');
+            this.loadingButton.showLoading(false);
+          }, 1000);
+        }
+
+        
+        // console.log('excuted');
+      } catch (ex) {
+        if (ex.response && ex.response.status === 400) {
+          await this.setState({buttonDisabled: true, buttonshow: true});
+          await this.setState({errors: ex.response.data});
+          showToast('error', this.state.errors);
+          this.loadingButton.showLoading(false);
+
+          setTimeout(async () => {
+            this.loadingButton.showLoading(false);
+            await this.setState({errors: null});
+          }, 2000);
+        }
+      }
+    }
+  };
   render() {
-    const clogo =
-    this.state.currency && this.state.currency.length > 0
-      ? this.state.currency === 'PHP'
-        ? php
-        : this.state.currency === 'INR'
-        ? inr
-        : this.state.currency ==='TRY'
-        ?tryy
-        :this.state.currency ==="AED"
-        ?aed:vnd
-      : null;
-      const{currency}=this.state
+
     return (
-      
       <View>
         <View style={{marginTop: 10}}>
           <Text style={{color: '#b8dcd4', fontFamily: 'Montserrat-SemiBold'}}>
@@ -160,7 +211,6 @@ class Sell extends Component {
               top: 10,
             }}>
             <View style={styles.sidecont}>
-              
               <TextInput
                 style={styles.inputStyle}
                 placeholder="10 to 1000"
@@ -182,9 +232,9 @@ class Sell extends Component {
               ]}>
               <Image
                 source={require('../../../../assests/images/usdt1.png')}
-                style={{resizeMode: 'contain', width: 20, height: 20, left:10}}
+                style={{resizeMode: 'contain', width: 20, height: 20, left: 10}}
               />
-              <Text style={{color: '#9ddec7',left:15}}>USDT</Text>
+              <Text style={{color: '#9ddec7', left: 15}}>USDT</Text>
             </View>
           </View>
         </View>
@@ -200,53 +250,64 @@ class Sell extends Component {
               top: 10,
             }}>
             <View style={styles.sidecont}>
-              
               <TextInput
                 style={styles.inputStyle}
                 placeholder="0.00"
                 placeholderTextColor={'#006622'}
                 returnKeyType="done"
                 keyboardType="decimal-pad"
-                onChangeText={e => console.log(e)}
-                value={this.state.amount}
+                onChangeText={e => this.phpamount(e)}
+                value={this.state.phpAmount}
               />
             </View>
             <View style={styles.dropdown}>
-            <CountryCurrencyPicker
+              <CountryCurrencyPicker
                 containerStyle={styles.containerStyle}
                 selectedValue={this.state.currency}
                 countries={['PH', 'IN', 'TR', 'AE', 'VN']}
                 label={'currency'}
                 onValueChange={(value, data) => this.onValuechange(data)}
-                iconStyle={{width: 25, height: 25, left: 5,}}
+                iconStyle={{width: 20, height: 20, left: 5}}
                 rowLabelStyle={{
                   color: '#91efdb',
-                  left: 5,
+                  left: 7,
                   fontFamily: 'Montserrat-SemiBold',
-                
+                  height: 25,
+                  top: 3,
                 }}
-                //rowStyle={{backgroundColor:"green"}}
+                rowStyle={{}}
                 dropdownStyle={{
                   backgroundColor: '#00311d',
                   width: 100,
-                  marginTop: 10,
+                  marginTop: 14,
                   borderWidth: 0,
-                  height:130
+                  height: 125,
                 }}
               />
             </View>
           </View>
-          
         </View>
-       <View style={{top:20}}>
-       <Text style={{fontFamily: 'Montserrat-SemiBold', color: 'white'}}>
+        <View style={{top: 20}}>
+          <Text style={{fontFamily: 'Montserrat-SemiBold', color: 'white'}}>
             1 USDT ≈ 57.22 PHP
           </Text>
-          <TouchableOpacity style={styles.btn}>
-            <Text style={{color:"#b8dcd4",fontFamily:"Montserrat-SemiBold"}}>Comming Soon...</Text>
-          </TouchableOpacity>
-       </View>
-       
+          <View style={styles.ButtonWrapper}>
+            <AnimateLoadingButton
+              ref={c => (this.loadingButton = c)}
+              width={wp('45%')}
+              height={hp('6%')}
+              backgroundColor={this.state.currency == 'PHP'?"#63d35a":"#003624"}              justifyContent="center"
+              alignItems="center"
+              borderRadius={10}
+              titleFontFamily="Montserrat-SemiBold"
+              title={this.state.currency == 'PHP' ? 'Proceed' : 'Comming Soon...'}
+              titleFontSize={hp('2.3%')}
+              titleColor={this.state.currency == 'PHP' ? 'black':'#fff'}
+              onPress={this._onProceed.bind(this)}
+              disabled={this.state.currency == 'PHP' ? false : true}
+            />
+          </View>
+        </View>
       </View>
     );
   }
@@ -291,8 +352,8 @@ const styles = StyleSheet.create({
     color: 'white',
     borderColor: '#006622',
     borderWidth: 1,
-borderTopLeftRadius:5,
-borderBottomLeftRadius:5,
+    borderTopLeftRadius: 5,
+    borderBottomLeftRadius: 5,
     borderRightWidth: 0,
   },
   dropdown: {
@@ -305,24 +366,23 @@ borderBottomLeftRadius:5,
     paddingHorizontal: wp('1%'),
     borderLeftWidth: 0,
     justifyContent: 'center',
-
   },
   placeholderStyle: {
     fontSize: hp('2%'),
     fontFamily: 'Montserrat-Medium',
     color: '#9ddec7',
   },
-  btn:{
-    alignSelf:"center",
-    height:50,
-    width:150,
-    justifyContent:'center',
-    alignItems:'center',
-    borderWidth:1,
-    borderColor:"#006622",
-    borderRadius:15,
-    top:10
-   
+  btn: {
+    alignSelf: 'center',
+    height: 50,
+    width: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#006622',
+    borderRadius: 15,
+    top: 10,
+    backgroundColor: '#63d35a',
   },
   ModalPopUp: {
     backgroundColor: '#00311d',
@@ -336,24 +396,28 @@ borderBottomLeftRadius:5,
     shadowOpacity: 0.27,
     shadowRadius: 4.65,
     elevation: 6,
-    alignSelf:'flex-end',
-    top:Dimensions.get('screen').height>720?170:160,
-    right:25,
+    alignSelf: 'flex-end',
+    top: Dimensions.get('screen').height > 720 ? 170 : 160,
+    right: 25,
   },
 
   iconStyle: {
     width: 20,
     height: 20,
-    left:4,
-  
+    left: 4,
   },
   itemtext: {
     fontSize: 13.5,
-    left: 5, 
+    left: 5,
     color: '#fff',
-    fontFamily:"Montserrat-SemiBold"
+    fontFamily: 'Montserrat-SemiBold',
   },
   containerStyle: {
     alignSelf: 'flex-end',
+  },
+  ButtonWrapper: {
+    flexDirection: 'row',
+    marginTop: hp('5%'),
+    alignSelf: 'center',
   },
 });

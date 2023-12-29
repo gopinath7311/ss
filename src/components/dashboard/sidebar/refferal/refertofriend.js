@@ -25,6 +25,8 @@ import dynamicLinks from '@react-native-firebase/dynamic-links';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 import Moment from 'react-moment';
+import get_referalhis from '../../../../redux/actions/getaffiliatehistoryAction';
+import get_referalsumry from '../../../../redux/actions/getafiliatesummaryAction';
 const graphicData = [
   {y: 10, x: ['Level3  1%']},
   {y: 28, x: ['Level2  2%']},
@@ -35,7 +37,10 @@ const bg = require('../../../../assests/images/bg_img.jpg');
 
 class Refertofriend extends Component {
   state = {reflink: '', readbtn: false};
-  componentDidMount() {}
+  componentDidMount() {
+   
+  
+  }
 
   clip = async copylink => {
     Clipboard.setString(copylink);
@@ -62,9 +67,7 @@ class Refertofriend extends Component {
   };
   render() {
     const copylink = this.state.reflink;
-    const widthAndHeight = 250;
-    const series = [123, 321, 123];
-    const sliceColor = ['#fbd203', '#ffb300', '#ff9100'];
+
     return (
       <View style={styles.container}>
         <View style={styles.header}>
@@ -482,6 +485,7 @@ const mapStateToProps = state => {
     profile: state.getprofile,
     gettaxes: state.gettaxes,
     getrefsumry: state.getrefsumry,
+    details:state.details
   };
 };
 

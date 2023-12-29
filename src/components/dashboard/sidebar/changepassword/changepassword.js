@@ -23,6 +23,7 @@ import CountdownCircle from 'react-native-countdown-circle';
 import {showToast} from '../../../../services/toastService';
 import Toast from 'react-native-toast-message';
 import allactions from '../../../../redux/actions/allactions';
+import { backEndCallObj } from '../../../../services/allService';
 
 const Joi = require('joi-browser');
 const {width, height} = Dimensions.get('window');
@@ -82,6 +83,7 @@ class ChangePAssword extends Component {
   };
 
   rcvotp = async () => {
+this.newcode()
     await this.setState({rcvotp: true, rcvotpbtn: true});
   };
 
@@ -90,12 +92,12 @@ class ChangePAssword extends Component {
   }
 
   newcode = async () => {
-    
     try {
       const data = await backEndCallObj('/user/send_otp', {
         user_email: this?.props?.getprofil?.user_email,
         otp_type: 'forgotpwd',
       });
+    
       showToast('success', data.success);
       if (data.success) {
         await this.setState({shownewcode: false});

@@ -156,7 +156,7 @@ try {
         this.requestPermission();
       }
     } else {
-      if (enabled) {
+      if (!enabled) {
         this.getFcmToken();
       } else {
         this.requestPermission();
@@ -235,6 +235,7 @@ try {
         const res = await backEndCallObj('/user/check_username', {
           user_name: name,
         });
+    
         if (res?.success) {
           this.setState({username: true, userLoader: false, err: ''});
         } else {
@@ -373,12 +374,13 @@ try {
           };
           console.log(obj, 'new obj');
           const dat = await backEndCallObj('/user/register', obj);
+          console.log(dat,'regResponse')
           if (dat) {
             showToast(
               'success',
               'Registration Successfull !! Please Verify your Mobile.',
             );
-            Actions.registerotp({regdata: obj});
+            //Actions.registerotp({regdata: obj});
             this.props.navigation.navigate('registerotp',{regdata:obj})
 
             setTimeout(async () => {
@@ -406,7 +408,7 @@ try {
             fcm_token: this.state.fcmtoken,
             browser_id: 'abc',
           };
-          console.log(obj, 'new obj');
+          //console.log(obj, 'new obj');
 
           const dat = await backEndCallObj('/user/register', obj);
           // console.log(dat, 'reg_respoce');

@@ -13,7 +13,7 @@ async function allactions() {
       await http.setJwt();
 
       const genmovies = await backEndCall('/user_get/universal');
-      console.log(genmovies, 'genmovies');
+      //console.log(genmovies.admin_controls, 'genmovies');
       store.dispatch({type: GET_PROFILE, payload: genmovies?.profile});
       store.dispatch({
         type: UPDATE_ADMINTXES,

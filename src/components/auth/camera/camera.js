@@ -4,7 +4,6 @@ import MaskedView from '@react-native-masked-view/masked-view';
 import auth from '../../../services/authService';
 const {width: windowWidth} = Dimensions.get('window');
 
-import * as FaceDetector from 'expo-face-detector';
 import {
   StyleSheet,
   Text,

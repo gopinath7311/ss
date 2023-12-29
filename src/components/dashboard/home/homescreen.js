@@ -22,8 +22,6 @@ import {Input, Button, Icon, CheckBox} from 'react-native-elements';
 import {NumericFormat} from 'react-number-format';
 import {connect} from 'react-redux';
 import Modal from 'react-native-modal';
-import {Dropdown} from 'react-native-element-dropdown';
-import AnimateLoadingButton from 'react-native-animate-loading-button';
 import Toast from 'react-native-toast-message';
 import {showToast} from '../../../services/toastService';
 import allactions from '../../../redux/actions/allactions';
@@ -69,32 +67,20 @@ class HomeScreen extends Component {
     errors: '',
     popup: false,
     stkbtn: false,
+    accepted_coins:[]
   };
 
   async componentDidMount() {
-    // if (this.props?.gettaxes) {
-    // } else {
-    //   await allactions();
-    // }
-    // await allactions();
-    setTimeout(async () => {
-      const ticker = this.props?.gettaxes?.coins;
-      const coins = this.props?.gettaxes?.contracts;
-      await this.setState({contracts: coins, tickr: ticker});
-      // const coinss = this.props?.gettaxes?.coins;
-      // var tickers = coinss.map(k => k?.ticker);
-      // var ticarr = [];
-      // tickers.forEach(e => {
-      //   var fr = {label: e, value: e};
-      //   ticarr.push(fr);
-      // });
-      // await this.setState({cointypes: ticarr});
-      this.setState({selectedCardIndex: 3});
-    }, 2000);
+    // setTimeout(() => {
+    //   this.getAcceptedCoins()
+    // }, 5000);
+    this.getAcceptedCoins()
+
   }
   _refresh = async () => {
     await this.setState({refreshing: true});
     setTimeout(async () => {
+      this.getAcceptedCoins()
       allactions();
       await this.setState({refreshing: false});
     }, 1000);
@@ -103,42 +89,7 @@ class HomeScreen extends Component {
   clickstake = () => {
     this.setState({openstacke: !this.state.openstacke});
   };
-  // _onPresslogin = async () => {
-  //   this.loadingButton.showLoading(true);
-  //   const {coinname, amount} = this.state;
-  //   Keyboard.dismiss();
-  //   let val = '';
-  //   const validata = Joi.validate(
-  //     {coinname, amount},
-  //     schema,
-  //     function (err, value) {
-  //       if (!err) return null;
-  //       const reter = err.details[0].message;
-  //       val = err.details[0].context.key;
-  //       return reter;
-  //     },
-  //   );
-  //   if (!!validata) {
-  //     await this.setState({errors: validata});
-  //     showToast('error', this.state.errors);
-  //     this.loadingButton.showLoading(false);
-  //   } else {
-  //     try {
-  //       const obj = {
-  //         coinname: coinname,
-  //         amount: amount,
-  //       };
-  //       console.log(obj, 'stake-obj');
-  //       this.loadingButton.showLoading(false);
-  //     } catch (ex) {
-  //       if (ex.response && ex.response.status === 400) {
-  //         await this.setState({errors: ex.response.data});
-  //         showToast('error', this.state.errors);
-  //         this.loadingButton.showLoading(false);
-  //       }
-  //     }
-  //   }
-  // };
+ 
 
   handleCardPress = index => {
     const {selectedCardIndex, animatedValue} = this.state;
@@ -158,6 +109,7 @@ class HomeScreen extends Component {
   };
 
   onstake = async item => {
+    
     const coinss = item?.accepted_coins;
     var tickers = coinss.map(k => k);
     var ticarr = [];
@@ -283,24 +235,30 @@ class HomeScreen extends Component {
       }
     }
   };
+getAcceptedCoins=async()=>{
+  const coins = this?.props?.gettaxes?.coins;
+  const getprofile = this?.props?.getprofil;  
 
+    var tickers = coins?.map(k => k?.ticker);
+    var ticarr = [];
+    tickers?.forEach(e => {
+      var fr = {
+        lable: e,
+        value: e,
+        balance:
+          e == 'USDT'
+            ? getprofile?.balances?.USDT
+            : e == 'USDC'
+            ?getprofile.balances?.USDC
+            :getprofile.balances?.BUSD,
+      };
+
+     ticarr.push(fr);
+this.setState({accepted_coins:ticarr})
+    });
+}
   render() {
-    const {selectedCardIndex, animatedValue, contracts} = this.state;
-    const ticker = this.props?.gettaxes?.coins;
-    const getprfil = this?.props?.getprofil;
-    // console.log(getprfil, 'jhgfdghjk');
-    // const entries = Object.entries(getprfil?.balances);
 
-    // var result = Object.keys(getprfil?.balances).map(() => {});
-    // console.log('getprofil', Object.keys(getprfil?.balances));
-    const clogo =
-      this.state.coinname && this.state.coinname.length > 0
-        ? this.state.coinname === 'USDT'
-          ? usdt
-          : this.state.coinname === 'USDC'
-          ? usdc
-          : busd
-        : null;
     return (
       <LinearGradient
         colors={['#101a10', '#40b16bbe', '#101a10', '#40b16bbe']}
@@ -315,7 +273,7 @@ class HomeScreen extends Component {
           <TouchableOpacity onPress={() => this.props.navigation.openDrawer()}>
             <Icon name="menu" type="ionicons" size={35} color="#fff" />
           </TouchableOpacity>
-
+         
           <Image
             style={{
               width: 205,
@@ -326,83 +284,7 @@ class HomeScreen extends Component {
             resizeMode="contain"
           />
         </View>
-        <Toast />
-
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginTop: hp('4%'),
-            marginHorizontal: wp('1%'),
-          }}>
-          <View style={styles.box}>
-            <View style={{flexDirection: 'row'}}>
-              <Image
-                source={require('../../../assests/images/usdt1.png')}
-                style={{
-                  resizeMode: 'contain',
-                  width: 20,
-                  height: 20,
-                  bottom: 2,
-                  right: 3,
-                }}
-              />
-              <Text style={{fontFamily: 'Montserrat-SemiBold', color: 'white'}}>
-                USDT
-              </Text>
-            </View>
-            <Text style={{fontFamily: 'Montserrat-Bold', color: 'white'}}>
-              {this?.props?.getprofil?.balances
-                ? this?.props?.getprofil?.balances?.USDT
-                : '0.00'}
-            </Text>
-          </View>
-
-          <View style={styles.box}>
-            <View style={{flexDirection: 'row'}}>
-              <Image
-                source={require('../../../assests/images/cicon1.png')}
-                style={{
-                  resizeMode: 'contain',
-                  width: 20,
-                  height: 20,
-                  bottom: 2,
-                  right: 3,
-                }}
-              />
-              <Text style={{fontFamily: 'Montserrat-SemiBold', color: 'white'}}>
-                USDC
-              </Text>
-            </View>
-            <Text style={{fontFamily: 'Montserrat-Bold', color: 'white'}}>
-              {this?.props?.getprofil?.balances
-                ? this?.props?.getprofil?.balances?.USDC
-                : '0.00'}
-            </Text>
-          </View>
-          <View style={styles.box}>
-            <View style={{flexDirection: 'row'}}>
-              <Image
-                source={require('../../../assests/images/busd.png')}
-                style={{
-                  resizeMode: 'contain',
-                  width: 20,
-                  height: 20,
-                  bottom: 2,
-                  right: 3,
-                }}
-              />
-              <Text style={{fontFamily: 'Montserrat-SemiBold', color: 'white'}}>
-                BUSD
-              </Text>
-            </View>
-            <Text style={{fontFamily: 'Montserrat-Bold', color: 'white'}}>
-              {this?.props?.getprofil?.balances
-                ? this?.props?.getprofil?.balances?.BUSD
-                : '0.00'}
-            </Text>
-          </View>
-        </View>
+        
         <ScrollView
           refreshControl={
             <RefreshControl
@@ -412,6 +294,38 @@ class HomeScreen extends Component {
             />
           }>
           <View style={{marginBottom: 100}}>
+            {this.state.accepted_coins.length>0?
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+            marginTop: hp('4%'),
+            marginHorizontal: wp('1%'),
+          }}>
+            {this.state.accepted_coins?.map((coin,index)=>
+          <View style={styles.box} key={index}>
+            <View style={{flexDirection: 'row'}}>
+              <Image
+                source={coin?.value=="USDT"?usdt:coin?.value=='USDC'?usdc:busd}
+                style={{
+                  resizeMode: 'contain',
+                  width: 20,
+                  height: 20,
+                  bottom: 2,
+                  right: 3,
+                }}
+              />
+              <Text style={{fontFamily: 'Montserrat-SemiBold', color: 'white'}}>
+                {coin.value}
+              </Text>
+            </View>
+            <Text style={{fontFamily: 'Montserrat-Bold', color: 'white'}}>
+            {coin?.balance?coin?.balance:'0.00'}
+            </Text>
+          </View>
+            )}          
+        </View>:<Text style={{color:'#fff',alignSelf:"center"}}>...Loading</Text>}
+        {/* <Toast /> */}
             <LinearGradient
               start={{x: 0, y: 0}}
               end={{x: 0, y: 1}}
@@ -424,7 +338,7 @@ class HomeScreen extends Component {
                   Swap
                 </Text>
               </View>
-              <Crypotswap />
+              <Crypotswap props={this.props}/>
             </LinearGradient>
 
             <LinearGradient
@@ -485,6 +399,7 @@ class HomeScreen extends Component {
             </LinearGradient>
           </View>
         </ScrollView>
+        <Toast />
       </LinearGradient>
     );
   }
@@ -496,6 +411,7 @@ const mapStateToProps = state => {
     theme: state.theme,
     getprofil: state.getprofil,
     gettaxes: state.gettaxes,
+    details:state.details
   };
 };
 

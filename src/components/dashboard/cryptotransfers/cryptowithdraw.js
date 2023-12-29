@@ -28,38 +28,6 @@ import Toast from 'react-native-toast-message';
 import {backEndCallObj} from '../../../services/allService';
 import allactions from '../../../redux/actions/allactions';
 import LinearGradient from 'react-native-linear-gradient';
-const local_data = [
-  {
-    label: 'USDT',
-    value: '1',
-    icon: () => (
-      <Image
-        source={require('../../../assests/images/usdt1.png')}
-        style={styles.image}
-      />
-    ),
-  },
-  {
-    label: 'USDC',
-    value: '2',
-    icon: () => (
-      <Image
-        source={require('../../../assests/images/cicon1.png')}
-        style={styles.image}
-      />
-    ),
-  },
-  {
-    label: 'BUSD',
-    value: '3',
-    icon: () => (
-      <Image
-        source={require('../../../assests/images/busd.png')}
-        style={styles.image}
-      />
-    ),
-  },
-];
 const usdt = require('../../../assests/images/usdt1.png');
 const usdc = require('../../../assests/images/cicon1.png');
 const busd = require('../../../assests/images/busd.png');
@@ -122,18 +90,11 @@ class CryptoWithdraw extends Component {
     tfacode: '',
     multiValue: null,
     open: false,
-
+accepted_coins:[]
   };
 
   async componentDidMount() {
-    const coins = this.props?.gettaxes?.coins;
-    var tickers = coins?.map(k => k?.ticker);
-    var ticarr = [];
-    tickers?.forEach(e => {
-      var fr = {label: e, value: e};
-      ticarr?.push(fr);
-    });
-    await this.setState({cointypes: ticarr});
+    this.getAcceptedCoins()
   }
 
   async _finishCount() {
@@ -209,17 +170,8 @@ class CryptoWithdraw extends Component {
     }
   };
 
-  coinsel = async item => {
-    await this.setState({
-      coinname: item?.value,
-    });
-    var mappp = this?.props?.gettaxes?.coins?.filter(
-      k => k?.ticker === this.state.coinname,
-    )[0];
-    await this.setState({selectcoin: mappp});
-  };
-
-  _onPresslogin = async () => {
+ 
+  _onPressSubmit = async () => {
     this.loadingButton.showLoading(true);
     const {coinname, raddress, amount, selectcoin} = this.state;
     const min = selectcoin?.withdraw ? selectcoin?.withdraw?.withdraw_min : 10;
@@ -369,16 +321,33 @@ class CryptoWithdraw extends Component {
   setOpen = () => {
     this.setState({open: !this.state.open});
   };
-  setItems = e => {
-    console.log(e, 'setItems');
-    this.setState({singleValue: e});
-  };
+  
  onSelect=(data)=>{
   this.setState({coinname:data.label,open:false})
  }
- setCoin=(item)=>{
-console.log(item,"item")
- }
+
+ getAcceptedCoins=()=>{
+  const coins = this?.props?.gettaxes?.coins;
+
+    var tickers = coins?.map(k => k?.ticker);
+    var ticarr = [];
+    tickers?.forEach(e => {
+      var fr = {
+        label: e,
+        value: e,
+        icon:() => (
+          <Image
+            source={e=="USDT"?usdt:e=='USDC'?usdc:busd}
+            style={styles.image}
+          />
+        ),
+      };
+
+     ticarr.push(fr);
+this.setState({accepted_coins:ticarr})
+
+    });
+}
   render() {
     const clogo =
       this.state.coinname && this.state.coinname.length > 0
@@ -407,27 +376,25 @@ console.log(item,"item")
               }}>
               Select Coin
             </Text>
-            <View style={styles.maindropDownCon}>
-<Image source={clogo} style={[styles.image,{marginLeft:3}]}/>
+     
             <DropDownPicker
-              items={local_data}
+              items={this.state.accepted_coins}
               //placeholder={this.state.coinname?this.state.coinname:"Please select coin"}
               dropDownContainerStyle={styles.dropDownCont}
-              style={styles.dropdown}
+              style={styles.maindropDownCon}
               placeholderStyle={{color: '#a9efdb',}}
               value={this.state.coinname}
               setOpen={this.setOpen}
-              activeLabelStyle={{color: 'red'}}
-              selectedItemLabelStyle={{color: 'red'}}
+              //activeLabelStyle={{color: 'red'}}
+              //selectedItemLabelStyle={{color: 'red'}}
              placeholder={this.state.coinname?this.state.coinname:"select"}
-              //setValue={value=>console.log(value.value)}
               open={this.state.open}
               listItemLabelStyle={{color:"#fff",}}
               TickIconComponent={(style)=>(<Icon name='check' type='Entypo' color={'#fff'}/>)}
               showTickIcon={true}
               tickIconStyle={{width:20,height:20,color:"#fff"}}
               onSelectItem={data=>this.onSelect(data)}
-             selectedItemContainerStyle={{backgroundColor:"red"}}
+             selectedItemContainerStyle={{backgroundColor:"#00271a"}}
            labelStyle={{color:"#a9efdb"}}
              multiple={false}
              ArrowDownIconComponent={()=>(<Icon name='arrow-drop-down' type='FontAwesome' color={'#a9efdb'}/>)}
@@ -435,7 +402,7 @@ console.log(item,"item")
    
              />
 
-            </View>
+       
 
             <Text
               style={{
@@ -550,7 +517,7 @@ console.log(item,"item")
                 title="Submit"
                 titleFontSize={hp('2.3%')}
                 titleColor="white"
-                onPress={this._onPresslogin.bind(this)}
+                onPress={this._onPressSubmit.bind(this)}
               />
             </View>
           </View>
@@ -923,7 +890,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.27,
     shadowRadius: 4.65,
     elevation: 6,
-    right:30
+    //right:30
   },
   maindropDownCon:{
     width: wp('90%'),
