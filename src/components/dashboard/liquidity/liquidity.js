@@ -57,21 +57,29 @@ const schema = Joi.object().keys({
     })
     .required(),
   amount: Joi.number()
-    .min(1)
+    .min(50)
     .error(() => {
       return {
         message: 'Please Enter Valid Amount',
       };
     })
     .required(),
-    isChecked: Joi.boolean()
-      .valid(true)
-      .error(() => {
-        return {
-          message: 'Please Accept Terms & Conditions',
-        };
-      })
-      .required(),
+  isChecked: Joi.boolean()
+    .valid(true)
+    .error(() => {
+      return {
+        message: 'Please Accept Terms & Conditions',
+      };
+    })
+    .required(),
+  funds: Joi.number()
+    .min(50)
+    .error(() => {
+      return {
+        message: 'Insufficient funds...!',
+      };
+    })
+    .required(),
 });
 class Liquidity extends Component {
   state = {
@@ -81,26 +89,33 @@ class Liquidity extends Component {
     buttonDisabled: false,
     er: '',
     amountErr: '',
-    isChecked:false,
-    accepted_coins:[]
+    isChecked: false,
+    accepted_coins: [],
+    provideLiqbtn: false,
+    confirmBtn: false,
+    confirmPurModal: false,
+    funds: 100,
+    selectedTerm:[]
   };
 
   async componentDidMount() {
-    this.getAcceptedCoins()
+    this.getAcceptedCoins();
   }
-  toggleModal = async () => {
+  toggleModal = async (data) => {
     await this.setState({
       isModalVisible: !this.state.isModalVisible,
       selectedCoin: null,
+      selectedTerm:data,
+      provideLiqbtn: !this.state.provideLiqbtn,
     });
   };
   onConfirm = async () => {
-    const {selectedCoin, amount,isChecked} = this.state;
-
+    const {selectedCoin, amount, isChecked, funds} = this.state;
+    this.setState({confirmBtn: true});
     Keyboard.dismiss();
 
     const validata = Joi.validate(
-      {selectedCoin, amount,isChecked},
+      {selectedCoin, amount, isChecked, funds},
       schema,
       function (err, value) {
         if (!err) return null;
@@ -112,21 +127,21 @@ class Liquidity extends Component {
     if (!!validata) {
       await this.setState({errors: validata.message, er: validata.path});
       // showToast('error', this.state.errors);
-
-    if(validata.path=='isChecked'){
-      showToast('error','Please Accept The Terms and Conditions')
-    }
-      await this.setState({buttonDisabled: true});
+      if (validata.path == 'isChecked') {
+        showToast('error', 'Please Accept The Terms and Conditions');
+      } else if (validata.path == 'funds') {
+        showToast('error', 'Insufficient Funds...!');
+      }
+      await this.setState({buttonDisabled: true, confirmBtn: false});
     } else {
       await this.setState({errors: '', er: ''});
-      alert('confirmed');
+      this.setState({isModalVisible: false, confirmPurModal: true});
     }
   };
   selectCoin = coin => {
     this.setState({selectedCoin: coin});
   };
   amount = async amount => {
-    
     if (amount[0] == 0) {
       await this.setState({amount: ''});
       await this.setState({amountErr: 'please enter valid amount'});
@@ -135,38 +150,40 @@ class Liquidity extends Component {
     } else {
       await this.setState({amount: amount});
 
-        let na = amount.replace(
-          /[`~!@#$₹₱%^&*()_|+\-=?;:'",.<>×÷⋅°π©℗®™√€£¥¢℅؋ƒ₼¿¡ ¦¬§$៛₡✓•△¶∆\{\}\[\]\\\/]/gi,
-          '',
-        );
-        const reppo = na.replace(' ', '');
-        await this.setState({amount: reppo,amountErr:""});
+      let na = amount.replace(
+        /[`~!@#$₹₱%^&*()_|+\-=?;:'",.<>×÷⋅°π©℗®™√€£¥¢℅؋ƒ₼¿¡ ¦¬§$៛₡✓•△¶∆\{\}\[\]\\\/]/gi,
+        '',
+      );
+      const reppo = na.replace(' ', '');
+      await this.setState({amount: reppo, amountErr: ''});
     }
   };
-  getAcceptedCoins=async()=>{
+  getAcceptedCoins = async () => {
     const coins = this?.props?.gettaxes?.coins;
-    const getprofile = this?.props?.getprofil;  
-  
-      var tickers = coins?.map(k => k?.ticker);
-      var ticarr = [];
-      tickers?.forEach(e => {
-        var fr = {
-          lable: e,
-          value: e,
-          balance:
-            e == 'USDT'
-              ? getprofile?.balances?.USDT
-              : e == 'USDC'
-              ?getprofile.balances?.USDC
-              :getprofile.balances?.BUSD,
-        };
-  
-       ticarr.push(fr);
-  this.setState({accepted_coins:ticarr})
-      });
-  }
+    const getprofile = this?.props?.getprofil;
+
+    var tickers = coins?.map(k => k?.ticker);
+    var ticarr = [];
+    tickers?.forEach(e => {
+      var fr = {
+        lable: e,
+        value: e,
+        balance:
+          e == 'USDT'
+            ? getprofile?.balances?.USDT
+            : e == 'USDC'
+            ? getprofile.balances?.USDC
+            : getprofile.balances?.BUSD,
+      };
+
+      ticarr.push(fr);
+      this.setState({accepted_coins: ticarr});
+    });
+  };
+  onConfirmPurchase = () => [alert('success')];
   render() {
-const {accepted_coins}=this.state
+    const {accepted_coins} = this.state;
+    //console.log(this.props.gettaxes.contracts,'gettwx')
     return (
       <View style={styles.container}>
         <View
@@ -193,7 +210,6 @@ const {accepted_coins}=this.state
         </View>
         <ScrollView>
           <View style={{marginBottom: 100}}>
-            
             <LinearGradient
               colors={['#101a10', '#40b16bbe']}
               start={{x: 0.2, y: 0.2}}
@@ -250,16 +266,21 @@ const {accepted_coins}=this.state
                   <Text> On APR For A Limited Time Only. </Text>
                 </Text>
               </View> */}
-             <Text style={[styles.prelaunchText, {fontSize: 30,alignSelf:"center",top:10}]}>
-                  LIQUIDITY {''}
-                  <Text
-                    style={[
-                      styles.prelaunchText,
-                      {color: '#fdff00', fontSize: 30},
-                    ]}>
-                    POOLS
-                  </Text>
+              {/* <Text
+                style={[
+                  styles.prelaunchText,
+                  {fontSize: 30, alignSelf: 'center', top: 10},
+                ]}>
+                LIQUIDITY {''}
+                <Text
+                  style={[
+                    styles.prelaunchText,
+                    {color: '#fdff00', fontSize: 30},
+                  ]}>
+                  POOLS
                 </Text>
+              </Text>
+             
               <LinearGradient
                 colors={['#007600', '#000f00']}
                 start={{x: 0.15, y: 0.68}}
@@ -288,7 +309,10 @@ const {accepted_coins}=this.state
                     <Text style={styles.rewardPer}>54.75%</Text>
                   </View>
                 </View>
-                <TouchableOpacity style={styles.btn} onPress={()=>this.toggleModal()}>
+                <TouchableOpacity
+                disabled={this.state.provideLiqbtn}
+                  style={styles.btn}
+                  onPress={() => this.toggleModal()}>
                   <Text
                     style={{
                       color: '#000',
@@ -403,20 +427,21 @@ const {accepted_coins}=this.state
                 <TouchableOpacity style={styles.btn}>
                   <Text style={styles.btnText}>Provide Liquidity</Text>
                 </TouchableOpacity>
-              </LinearGradient>
+              </LinearGradient> */}
               <View
                 style={{
                   justifyContent: 'center',
                   alignItems: 'center',
-                  marginTop: 100,
+                  marginTop: 20,
+                  // marginTop: 100,
                 }}>
                 <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.text2}>STANDARD</Text>
+                  <Text style={styles.text2}>LIQUIDITY</Text>
                   <Text style={[styles.text2, {color: '#fff', left: 5}]}>
-                    LIQUIDITY POOLS
+                    POOLS
                   </Text>
                 </View>
-                {arr.map((data, index) => (
+                {this.props?.gettaxes?.contracts.map((data, index) => (
                   <View style={styles.poolBox} key={index}>
                     <View
                       style={{
@@ -432,7 +457,11 @@ const {accepted_coins}=this.state
                               fontSize: 24,
                               left: 10,
                             }}>
-                            Short
+                            {data?.name == 'Short Term'
+                              ? 'Short'
+                              : data?.name == 'Long Term'
+                              ? 'Long'
+                              : 'Medium'}
                           </Text>
                           <Text
                             style={{
@@ -458,7 +487,7 @@ const {accepted_coins}=this.state
                             textAlign: 'center',
                             fontFamily: 'Poppins-SemiBold',
                           }}>
-                          0.1%
+                          {data?.interest}
                         </Text>
                       </View>
                       <View style={{top: 20}}>
@@ -469,7 +498,7 @@ const {accepted_coins}=this.state
                             fontSize: 15,
                             left: 25,
                           }}>
-                          60 Days
+                          {data?.days} days
                         </Text>
                         <Text style={{color: '#fdff00'}}>Generated APR</Text>
                         <Text
@@ -478,13 +507,14 @@ const {accepted_coins}=this.state
                             textAlign: 'center',
                             fontFamily: 'Poppins-SemiBold',
                           }}>
-                          36.50%
+                          {(data?.interest * 365).toFixed(2)} %
                         </Text>
                       </View>
                     </View>
                     <TouchableOpacity
+                      disabled={this.state.provideLiqbtn}
                       style={[styles.btn, {alignSelf: 'center'}]}
-                      onPress={() => this.toggleModal()}>
+                      onPress={() => this.toggleModal(data)}>
                       <Text style={styles.btnText}>Provide Liquidity</Text>
                     </TouchableOpacity>
                   </View>
@@ -507,7 +537,6 @@ const {accepted_coins}=this.state
               <Text style={styles.selctcoint}>Select Coin</Text>
               <ScrollView>
                 <View style={{marginBottom: 50}}>
-                
                   <View
                     style={{
                       flexDirection: 'row',
@@ -519,9 +548,20 @@ const {accepted_coins}=this.state
                       <TouchableOpacity
                         style={styles.coinBox}
                         onPress={() => this.selectCoin(data.lable)}>
-                        <Image    source={data?.lable=="USDT"?usdt:data?.lable=='USDC'?usdc:busd} style={styles.img} />
+                        <Image
+                          source={
+                            data?.lable == 'USDT'
+                              ? usdt
+                              : data?.lable == 'USDC'
+                              ? usdc
+                              : busd
+                          }
+                          style={styles.img}
+                        />
                         <Text style={styles.coinText}>{data.lable}</Text>
-                        <Text style={styles.BalText}>Balance {data.balance}</Text>
+                        <Text style={styles.BalText}>
+                          Balance {data.balance}
+                        </Text>
                         {data.lable == this.state.selectedCoin ? (
                           <View
                             style={{position: 'absolute', right: -5, top: -10}}>
@@ -536,7 +576,7 @@ const {accepted_coins}=this.state
                       </TouchableOpacity>
                     ))}
                   </View>
-                  <Toast/>
+                  <Toast />
                   <Text style={styles.errText}>
                     {this.state.er == 'selectedCoin' ? this.state.errors : ''}
                   </Text>
@@ -551,7 +591,7 @@ const {accepted_coins}=this.state
                   <TextInput
                     style={styles.inputStyle}
                     placeholderTextColor={'#a6caaf'}
-                    placeholder='Min 50 to 50000'
+                    placeholder="Min 50 to 50000"
                     returnKeyType="done"
                     keyboardType="number-pad"
                     onChangeText={e => this.amount(e)}
@@ -565,28 +605,33 @@ const {accepted_coins}=this.state
                       ? this.state.amountErr
                       : ''}
                   </Text>
-                  <View style={{flexDirection:'row'}}>
-                  <CheckBox
-                  onClick={() => {
-                    this.setState({
-                      isChecked: !this.state.isChecked,
-
-                      
-                    });
-                  }}
-                  isChecked={this.state.isChecked}
-                  checkBoxColor={'#fff'}
-                  style={{marginLeft: wp('3.5%'), marginRight: wp('1%')}}
-                />
-                  <Text
-                    style={{
-                      fontFamily: 'Poppins-SemiBold',
-                      textAlign: 'center',
-                      color: '#fff',
-                      width:wp('80%')
-                    }}>
-                Upon creating, interacting, and transacting with an account under this Platform (“Stable Swap”) I hereby and voluntarily agree to be bound by the Terms and Conditions set forth by TopJuan Tech Corporation, a virtual asset custodian entity, supervised by the Bangko Sentral ng Pilipinas (“BSP”) to engage in Virtual Asset Service Provider activities in the Philippines.
-                  </Text>
+                  <View style={{flexDirection: 'row'}}>
+                    <CheckBox
+                      onClick={() => {
+                        this.setState({
+                          isChecked: !this.state.isChecked,
+                        });
+                      }}
+                      isChecked={this.state.isChecked}
+                      checkBoxColor={'#fff'}
+                      style={{marginLeft: wp('2%')}}
+                    />
+                    <Text
+                      style={{
+                        fontFamily: 'Poppins-SemiBold',
+                        //textAlign: 'center',
+                        color: '#fff',
+                        width: wp('85%'),
+                        textAlignVertical: 'center',
+                      }}>
+                      Upon creating, interacting, and transacting with an
+                      account under this Platform (“Stable Swap”) I hereby and
+                      voluntarily agree to be bound by the Terms and Conditions
+                      set forth by TopJuan Tech Corporation, a virtual asset
+                      custodian entity, supervised by the Bangko Sentral ng
+                      Pilipinas (“BSP”) to engage in Virtual Asset Service
+                      Provider activities in the Philippines.
+                    </Text>
                   </View>
                   <View
                     style={{
@@ -596,7 +641,8 @@ const {accepted_coins}=this.state
                     }}>
                     <TouchableOpacity
                       style={[styles.confirmBx, {right: 30}]}
-                      onPress={() => this.onConfirm()}>
+                      onPress={() => this.onConfirm()}
+                      disabled={this.state.confirmBtn}>
                       <Text
                         style={{
                           fontFamily: 'Poppins-SemiBold',
@@ -622,6 +668,95 @@ const {accepted_coins}=this.state
                       </Text>
                     </TouchableOpacity>
                   </View>
+                </View>
+              </ScrollView>
+            </LinearGradient>
+          </View>
+        </Modal>
+        <Modal
+          visible={this.state.confirmPurModal}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={this.toggleModal}>
+          <View style={[styles.bottomPopUp]}>
+            <LinearGradient
+              colors={['#1d8659', '#3f777d', '#5c6b9e']}
+              start={{x: 0.2, y: 0.2}}
+              end={{x: 1, y: 0.2}}
+              style={styles.popGradient}>
+              <Text style={styles.selctcoint}>Confirm Purchase</Text>
+              <ScrollView>
+                <View style={styles.purchaseBox}>
+                  <View>
+                    <Text style={styles.PurchaseBoxText}>From</Text>
+                    <Text style={styles.PurchaseBoxText}>Transaction Type</Text>
+                    <Text style={styles.PurchaseBoxText}>Almount</Text>
+                    <Text style={styles.PurchaseBoxText}>Daily Rewards</Text>
+                  </View>
+                  <View>
+                    <Text style={[styles.PurchaseBoxText, {color: '#10e549'}]}>
+                      USDT Wallet
+                    </Text>
+                    <Text style={[styles.PurchaseBoxText, {color: '#10e549'}]}>
+                      New Liquidity
+                    </Text>
+                    <Text style={[styles.PurchaseBoxText, {color: '#10e549'}]}>
+                      {this.state.amount}
+                    </Text>
+                    <Text style={[styles.PurchaseBoxText, {color: '#10e549'}]}>
+                      0.15%
+                    </Text>
+                  </View>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'flex-end',
+                    margin: 10,
+                  }}>
+                  <TouchableOpacity
+                    style={[
+                      styles.confirmBx,
+                      {right: 30, width: wp('40%'), height: hp('5%')},
+                    ]}
+                    onPress={() => this.onConfirmPurchase()}
+                    // disabled={this.state.confirmBtn}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: 'Poppins-SemiBold',
+                        color: '#000',
+                        fontSize: 15,
+                      }}>
+                      Confirm
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.setState({
+                        confirmPurModal: false,
+                        provideLiqbtn: false,
+                        confirmBtn:false
+                      })
+                    }
+                    style={[
+                      styles.confirmBx,
+                      {
+                        width: wp('20%'),
+                        height: hp('5%'),
+                        right: 20,
+                        backgroundColor: '#000',
+                      },
+                    ]}>
+                    <Text
+                      style={{
+                        fontFamily: 'Poppins-SemiBold',
+                        color: '#fff',
+                        fontSize: 15,
+                      }}>
+                      Close
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </ScrollView>
             </LinearGradient>
@@ -726,15 +861,14 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
     padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#ccc',
-    //height: hp('100%'),
+    //borderTopWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    height: hp('100%'),
   },
   popGradient: {
     width: wp('95%'),
-   // height: hp('90%'),
+    // height: hp('90%'),
     borderRadius: hp('1.5%'),
     borderWidth: 0.5,
     borderLeftColor: '#5c6b9e',
@@ -794,5 +928,20 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     top: 2,
     fontFamily: 'Poppins-SemiBold',
+  },
+  purchaseBox: {
+    width: wp('80%'),
+    borderWidth: 0.5,
+    borderColor: '#fff',
+    alignSelf: 'center',
+    margin: 25,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  },
+  PurchaseBoxText: {
+    color: '#fff',
+    fontSize: 15,
+    fontFamily: 'Poppins-Medium',
+    margin: 10,
   },
 });

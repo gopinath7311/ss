@@ -298,7 +298,7 @@ class InternalTransfer extends Component {
         return reter;
       },
     );
-    if (!!validata) {
+    if (validata) {
       this.loadingButtonn.showLoading(false);
       await this.setState({errors: validata});
       showToast('error', this.state.errors);

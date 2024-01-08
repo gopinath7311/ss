@@ -27,6 +27,7 @@ import {showToast} from '../../../services/toastService';
 import allactions from '../../../redux/actions/allactions';
 import {backEndCallObj} from '../../../services/allService';
 import Crypotswap from './tabbar';
+import { getprofile } from '../../../services/profileService';
 const usdt = require('../../../assests/images/usdt1.png');
 const usdc = require('../../../assests/images/cicon1.png');
 const busd = require('../../../assests/images/busd_white.png');
@@ -71,14 +72,15 @@ class HomeScreen extends Component {
   };
 
   async componentDidMount() {
-    // setTimeout(() => {
-    //   this.getAcceptedCoins()
-    // }, 5000);
+    setTimeout(() => {
+      this.getAcceptedCoins()
+    }, 4000);
     this.getAcceptedCoins()
 
   }
   _refresh = async () => {
     await this.setState({refreshing: true});
+ 
     setTimeout(async () => {
       this.getAcceptedCoins()
       allactions();
@@ -258,7 +260,6 @@ this.setState({accepted_coins:ticarr})
     });
 }
   render() {
-
     return (
       <LinearGradient
         colors={['#101a10', '#40b16bbe', '#101a10', '#40b16bbe']}

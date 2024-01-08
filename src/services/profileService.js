@@ -4,7 +4,6 @@ import { updtoken } from "./authService";
 
 export async function getprofile() {
   const datat = await http.post("/profile/getprofile");
-
   return helpr.decryptobj(datat.data);
 }
 export async function getlatest() {

@@ -3,7 +3,7 @@ import auth from '../../services/authService';
 import http from '../../services/httpService';
 import profileService from '../../services/profileService';
 
-export var GET_PROFILE = 'GET_PROFILE';
+export var GET_PROFILEDET = 'GET_PROFILEDET';
 
 function get_profile() {
   setTimeout(async () => {
@@ -11,7 +11,8 @@ function get_profile() {
       await http.setJwt();
 
       const authy = await profileService.getprofile();
-      store.dispatch({type: GET_PROFILE, payload: authy.success});
+     console.log(authy,'profileActions')
+      store.dispatch({type: GET_PROFILEDET, payload: authy.success});
     } catch (error) {}
   }, 100);
 }

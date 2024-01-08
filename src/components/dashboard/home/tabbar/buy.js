@@ -47,7 +47,8 @@ class Buy extends Component {
     selectcoin: {},
     buttonDisabled: true,
     buttonshow: true,
-    enterUsdt:''
+    enterUsdt:'',
+    
   };
   componentDidMount = async () => {
     const coins = this?.props?.gettaxes?.coins;
@@ -131,6 +132,7 @@ class Buy extends Component {
           );
           setTimeout(() => {
             this.props?.props?.props?.navigation?.navigate('Profile');
+            this.loadingButton.showLoading(false);
           }, 1000);
         }
 
@@ -147,6 +149,28 @@ class Buy extends Component {
             await this.setState({errors: null});
           }, 2000);
         }
+      }
+    }
+  };
+  usdtToPhp = async amount => {
+    if (amount[0] == 0) {
+      showToast('error', "Don't Enter space & '0' before Amount.");
+      await this.setState({enterUsdt: ''});
+    } else {
+      await this.setState({enterUsdt: amount});
+      await this.setState({buttonDisabled: false});
+      let na = amount.replace(
+        /[`~!@#$%^&*()_|+\-=?;:'",<>×÷⋅°π©℗®™√€£¥¢✓N•△¶∆\{\}\[\]\\\/]/gi,
+        '',
+      );
+      const reppo = na.replace(' ', '');
+      await this.setState({enterUsdt: reppo});
+      if(reppo !== ''){
+      phpToUsdtConversionRate=57.1
+      const convertedValue = parseFloat(reppo) * phpToUsdtConversionRate;
+      this.setState({amount:convertedValue.toFixed(3)});
+      }else{
+        this.setState({amount:''})
       }
     }
   };
@@ -232,9 +256,9 @@ class Buy extends Component {
                 placeholderTextColor={'#006622'}
                 returnKeyType="done"
                 keyboardType="decimal-pad"
-                onChangeText={e => console.log(e)}
+                onChangeText={e => this.usdtToPhp(e)}
                 value={this.state.enterUsdt}
-                editable={false}
+                //editable={false}
               />
             </View>
 

@@ -238,7 +238,7 @@ export default class ResetPass extends Component {
           showToast('success', dat.success);
           setTimeout(() => {
             this.props.navigation.navigate('login');
-            this.loadingButton.showLoading(false);
+            //this.loadingButton?.showLoading(false);
           }, 700);
         }
       } catch (ex) {

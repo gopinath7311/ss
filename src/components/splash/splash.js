@@ -20,6 +20,7 @@ import Toast from 'react-native-tiny-toast';
 import auth from '../../services/authService';
 import update_auth from '../../redux/actions/authAction';
 import allactions from '../../redux/actions/allactions';
+import get_profile from '../../redux/actions/profileAction';
 
 class Splash extends Component {
   state = {};
@@ -30,16 +31,16 @@ class Splash extends Component {
       await NetInfo.fetch().then(async state => {
         if (state.isConnected) {
           const user = await auth.getCurrentUser();
-        
+
           if (user && user?.user_email) {
             await update_auth();
             await allactions();
-
+            await get_profile();
             this.props.navigation.navigate('home');
           } else {
-            this.props.navigation.navigate('home');
+            //this.props.navigation.navigate('home');
 
-            //this.props.navigation.navigate("login")
+            this.props.navigation.navigate('login');
           }
         } else {
           Alert.alert(
@@ -89,7 +90,6 @@ class Splash extends Component {
   };
 
   render() {
-
     return (
       <SafeAreaView>
         <View
